@@ -14,16 +14,13 @@ const app = express();
 const server = http.createServer(app);
 
 // ====== THE FIX: ALLOW EVERYTHING ======
+const cors = require('cors');
+
 app.use(cors({
-    origin: [
-        'https://connecthub-fronted.onrender.com',  // Your frontend URL
-        'http://localhost:3000',
-        'http://localhost:3001'
-    ],
+    origin: '*',
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}))
+    methods: ['GET', 'POST', 'PUT', 'DELETE']
+}));
 
 app.use(express.json());
 
