@@ -771,6 +771,112 @@
     color: yellow;
 }
 
+/* ============================================================
+   MOBILE CHAT INPUT FIX
+   ============================================================ */
+.hm-input-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    background: var(--sidebar-bg);
+    border-top: 1px solid var(--sidebar-border);
+    position: sticky;
+    bottom: 0;
+    width: 100%;
+    z-index: 10;
+}
+
+.hm-input-bar input {
+    flex: 1;
+    padding: 10px 14px;
+    border: none;
+    border-radius: 20px;
+    background: var(--sidebar-hover-bg);
+    color: var(--sidebar-icon-hover);
+    outline: none;
+    font-size: 15px;
+    min-width: 0;
+}
+
+.hm-input-bar .hm-send-btn {
+    background: #00a884;
+    border: none;
+    color: white;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.hm-input-bar .hm-send-btn:hover {
+    background: #008f72;
+}
+
+/* ============================================================
+   MOBILE - SHOW CHAT SCREEN
+   ============================================================ */
+@media (max-width: 768px) {
+    .hm-chat {
+        display: none;
+        flex-direction: column;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: var(--body-bg);
+        z-index: 1000;
+    }
+
+    .hm-chat-open {
+        display: flex !important;
+    }
+
+    .hm-input-bar {
+        position: sticky;
+        bottom: 0;
+        background: var(--sidebar-bg);
+        padding: 10px 12px;
+    }
+
+    .hm-input-bar input {
+        font-size: 14px;
+        padding: 10px 14px;
+    }
+
+    .hm-input-bar .hm-send-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+
+    /* Show back button on mobile */
+    .hm-back-btn {
+        display: flex !important;
+        background: none;
+        border: none;
+        font-size: 22px;
+        color: var(--sidebar-icon-hover);
+        cursor: pointer;
+        padding: 4px 8px;
+    }
+}
+
+/* ============================================================
+   DESKTOP - HIDE BACK BUTTON
+   ============================================================ */
+@media (min-width: 769px) {
+    .hm-back-btn {
+        display: none !important;
+    }
+}
+
 /* MOBILE RESPONSIVE */
 @media (max-width: 768px) {
     .hm-page {

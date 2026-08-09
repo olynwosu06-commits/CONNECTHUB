@@ -76,13 +76,13 @@ return (
         </div>
 
         <div className="hero-text">
-          <h2>
+          <h3>
             Connect.
             <br />
             Chat.
             <br />
             Stay Close.
-          </h2>
+          </h3>
 
           <p>
             A modern messaging platform built for fast, secure and

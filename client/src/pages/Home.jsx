@@ -6,10 +6,14 @@ import '../styles/Home.css';
 import { API_BASE_URL } from '../config';
 
 // ============================================================
-// MESSAGE TICKS COMPONENT
+// MESSAGE TICKS COMPONENT (with Read Receipts toggle)
 // ============================================================
 const MessageTicks = ({ senderId, userId, delivered, read }) => {
+    // ✅ Check if read receipts are enabled
+    const readReceiptsEnabled = localStorage.getItem('readReceipts') !== 'false';
+    
     if (senderId !== userId) return null;
+    if (!readReceiptsEnabled) return null;
     if (read) return <span className="hm-ticks hm-ticks-read">✓✓</span>;
     if (delivered) return <span className="hm-ticks hm-ticks-delivered">✓✓</span>;
     return <span className="hm-ticks">✓</span>;
@@ -60,6 +64,54 @@ function Home() {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const token = localStorage.getItem('token');
     const authHeaders = { headers: { Authorization: `Bearer ${token}` } };
+
+
+    useEffect(() => {
+    const navbar = document.querySelector('.side-bar');
+    if (!navbar) return;
+
+    if (isMobileChatOpen) {
+        navbar.style.display = 'none';
+    } else {
+        navbar.style.display = '';
+    }
+
+    return () => {
+        navbar.style.display = '';
+    };
+}, [isMobileChatOpen]);
+
+    // ============================================================
+    // THEME SYNC ✅
+    // ============================================================
+    const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+
+    useEffect(() => {
+        document.documentElement.setAttribute('data-theme', theme);
+    }, [theme]);
+
+    // Listen for theme changes from Settings page
+    useEffect(() => {
+        const handleThemeChange = () => {
+            const newTheme = localStorage.getItem('theme') || 'dark';
+            setTheme(newTheme);
+            document.documentElement.setAttribute('data-theme', newTheme);
+        };
+        window.addEventListener('storage', handleThemeChange);
+        return () => window.removeEventListener('storage', handleThemeChange);
+    }, []);
+
+    // ============================================================
+    // SETTINGS HELPERS ✅
+    // ============================================================
+    const getSetting = (key, defaultValue = true) => {
+        const value = localStorage.getItem(key);
+        if (value === null) return defaultValue;
+        return value !== 'false';
+    };
+
+    const enterToSend = getSetting('enterToSend', true);
+    const typingEnabled = getSetting('typingStatus', true);
 
     // ============================================================
     // NOTIFICATION
@@ -231,31 +283,26 @@ function Home() {
     };
 
     // ============================================================
-    // SEND PRIVATE MESSAGE - FIXED
+    // SEND PRIVATE MESSAGE
     // ============================================================
     const sendMessage = async () => {
         if (!newMessage.trim() || !selectedChat) return;
         const sentText = newMessage.trim();
 
-        // Emit to socket
         socket.emit('private-message', { 
             receiverId: selectedChat._id, 
             text: sentText 
         });
 
-        // Save message locally
-        const tempMessage = {
+        setMessages(prev => [...prev, {
             senderId: user._id,
             text: sentText,
             time: new Date().toLocaleTimeString(),
             delivered: false,
             read: false,
-            _id: Date.now() // temporary ID
-        };
+            _id: Date.now()
+        }]);
 
-        setMessages(prev => [...prev, tempMessage]);
-
-        // Update friends list
         setFriends(prev => {
             const updated = prev.map(f =>
                 f._id === selectedChat._id ? { ...f, lastMessage: sentText, time: 'Just now' } : f
@@ -272,7 +319,7 @@ function Home() {
     };
 
     // ============================================================
-    // SEND GROUP MESSAGE - FIXED
+    // SEND GROUP MESSAGE
     // ============================================================
     const sendGroupMessage = async () => {
         if (!newMessage.trim() || !selectedGroup) return;
@@ -307,11 +354,11 @@ function Home() {
     };
 
     // ============================================================
-    // TYPING
+    // TYPING (with Typing Status toggle ✅)
     // ============================================================
     const handleTyping = (e) => {
         setNewMessage(e.target.value);
-        if (selectedChat?._id) {
+        if (selectedChat?._id && typingEnabled) {
             socket.emit('typing', { receiverId: selectedChat._id, isTyping: true });
             clearTimeout(typingTimeoutRef.current);
             typingTimeoutRef.current = setTimeout(() => {
@@ -403,6 +450,7 @@ function Home() {
         };
 
         const handleTypingEvent = ({ userId, isTyping }) => {
+            if (!typingEnabled) return; // ✅ Check typing toggle
             if (selectedChat && userId === selectedChat._id) {
                 if (isTyping) {
                     clearTimeout(typingClearRef.current);
@@ -632,7 +680,11 @@ function Home() {
                                     placeholder="Type a message..."
                                     value={newMessage}
                                     onChange={(e) => setNewMessage(e.target.value)}
-                                    onKeyPress={(e) => e.key === 'Enter' && sendGroupMessage()}
+                                    onKeyPress={(e) => {
+                                        if (enterToSend && e.key === 'Enter') {
+                                            sendGroupMessage();
+                                        }
+                                    }}
                                 />
                                 <button className="hm-send-btn" onClick={sendGroupMessage}>
                                     <i className="bx bx-send"></i>
@@ -684,7 +736,11 @@ function Home() {
                                     placeholder="Type a message..."
                                     value={newMessage}
                                     onChange={handleTyping}
-                                    onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                                    onKeyPress={(e) => {
+                                        if (enterToSend && e.key === 'Enter') {
+                                            sendMessage();
+                                        }
+                                    }}
                                 />
                                 <button className="hm-send-btn" onClick={sendMessage}>
                                     <i className="bx bx-send"></i>

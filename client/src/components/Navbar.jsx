@@ -42,6 +42,19 @@ function Navbar() {
         };
     }, [dropdownOpen]);
 
+
+    function Navbar({ hideOnChat = false }) {
+    // ... rest of your code
+
+    if (hideOnChat) return null;
+
+    return (
+        <div className="side-bar">
+            {/* Navbar content */}
+        </div>
+    );
+}
+
     return (
         <div className="side-bar">
             {/* TOP ICONS */}
@@ -55,13 +68,16 @@ function Navbar() {
                 <li onClick={() => navigate('/status')} title="Status">
                     <i className="bx bx-circle"></i>
                 </li>
+                <li title="Media">
+                    <i className="bx bx-image" />
+                </li>
             </ul>
 
             {/* BOTTOM ICONS */}
             <ul className="menu-bottom">
-                <li onClick={toggleTheme} title="Toggle Theme">
+                {/* <li onClick={toggleTheme} title="Toggle Theme">
                     <i className={theme === 'light' ? 'bx bx-moon' : 'bx bx-sun'}></i>
-                </li>
+                </li> */}
 
                 {/* Three-dots + dropdown */}
                 <li
@@ -89,6 +105,10 @@ function Navbar() {
                                     <i className="bx bx-circle"></i>
                                     <span>Status</span>
                                 </li>
+                                <li onClick={() => handleIconClick('/settings')}>
+                                    <i className="bx bx-cog" />
+                                    <span>Settings</span>
+                                </li>
                             </ul>
                         </div>
                     )}
@@ -102,7 +122,7 @@ function Navbar() {
                     }}
                     title="Logout"
                 >
-                    <i className="bx bxs-log-out"></i>
+                    {/* <i className="bx bxs-log-out"></i> */}
                 </li>
             </ul>
         </div>

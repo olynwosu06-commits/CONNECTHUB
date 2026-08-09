@@ -26,7 +26,7 @@ body{
 /*============== LEFT SIDE ==============*/
 
 .login-left{
-    flex:1.1;
+    flex: 0.7;
     position:relative;
     overflow:hidden;
     display:flex;
@@ -96,15 +96,15 @@ body{
 
 /*============== HERO ==============*/
 
-.hero-text h2{
-    font-size:58px;
+.hero-text h3{
+    font-size:30px;
     line-height:1.1;
     margin-bottom:28px;
     font-weight:800;
 }
 
 .hero-text p{
-    font-size:18px;
+    font-size:15px;
     line-height:1.8;
     opacity:.92;
 }

@@ -1,16 +1,22 @@
-import React from 'react'
-import NavBar from '../components/Navbar'
-import { Outlet } from 'react-router-dom'
-// import Footer from '../cpmponents/Footer'
+import React from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
+import Navbar from '../components/Navbar';
 
 function Layout() {
-  return (
-    <div>
-      <NavBar/>
-      <Outlet/>
-      {/* <Footer/> */}
-    </div>
-  )
+    const location = useLocation();
+    
+    // Pages where Navbar should NOT appear
+    const hideNavbarPages = ['/status', '/settings', '/profile', '/loading'];
+    const hideNavbar = hideNavbarPages.includes(location.pathname);
+
+    return (
+        <div className="layout-container">
+            <div className="page-content">
+                <Outlet />
+            </div>
+            {!hideNavbar && <Navbar />}
+        </div>
+    );
 }
 
-export default Layout
+export default Layout;

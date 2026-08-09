@@ -8,6 +8,7 @@ import Status from './pages/Status';
 import Groups from './pages/Groups';
 import Loading from './pages/Loading';
 import RootLayout from './layout/Layout';
+import Settings from './pages/Settings';
 
 // ✅ Check token fresh every time a route renders
 const ProtectedRoute = ({ children }) => {
@@ -45,6 +46,10 @@ function App() {
                     <Route
                         path="groups"
                         element={<ProtectedRoute><Groups /></ProtectedRoute>}
+                    />
+                    <Route
+                        path="settings"
+                        element={<ProtectedRoute><Settings /></ProtectedRoute>}
                     />
                 </Route>
             </Route>
