@@ -4,7 +4,7 @@ require('dotenv').config();
 
 const express = require('express');
 const http = require('http');
-const cors = require('cors');
+const cors = require('cors');          // ← ONLY ONCE
 const { Server } = require('socket.io');
 const connectDB = require('./config/database');
 const authRoutes = require('./routes/authRoutes');
@@ -13,9 +13,7 @@ const socketIO = require('./socket/socket');
 const app = express();
 const server = http.createServer(app);
 
-// ====== THE FIX: ALLOW EVERYTHING ======
-const cors = require('cors');
-
+// ✅ Use the imported cors directly
 app.use(cors({
     origin: '*',
     credentials: true,
