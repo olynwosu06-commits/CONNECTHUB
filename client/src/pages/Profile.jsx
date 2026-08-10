@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Profile.css';
 
-const API = 'http://localhost:5000';
+const API = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 const CLOUDINARY_CLOUD = 'daaiil1ah';
 const CLOUDINARY_PRESET = 'Connecthub';
 

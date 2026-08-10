@@ -500,6 +500,11 @@
    MOBILE - ONLY CHANGE MOBILE VIEW
    ============================================================ */
 @media (max-width: 768px) {
+
+    .st-right.st-right-viewing {
+        display: flex !important;
+    }
+
     .st-page { margin-left: 0; }
     .st-loading { margin-left: 0; }
 

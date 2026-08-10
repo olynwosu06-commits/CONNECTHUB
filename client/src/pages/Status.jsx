@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import '../styles/Status.css';
 
-const API = 'http://localhost:5000';
+const API = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 const CLOUDINARY_CLOUD = 'daaiil1ah';
 const CLOUDINARY_PRESET = 'Connecthub';
 
@@ -271,7 +271,7 @@ function Status() {
             </div>
 
             {/* ===== RIGHT PANEL ===== */}
-            <div className="st-right">
+            <div className={`st-right ${selectedGroup ? 'st-right-viewing' : ''}`}>
                 {selectedGroup ? (
                     /* STATUS VIEWER */
                     <div className="st-viewer" onClick={closeViewer}>
