@@ -1,1037 +1,962 @@
-/* Root Variables - Add at the top */
-/* :root {
-  --hmbar-bg: #f7f8ff;
-  --body-bg: #1a1a1a;
-  --sidebar-bg: #2d2d2d;
-  --sidebar-border: #3d3d3d;
-  --sidebar-hover-bg: #3a3a3a;
-  --sidebar-active-bg: #404040;
-  --sidebar-icon: #a0a0a0;
-  --sidebar-icon-hover: #ffffff;
-  --notification-success: #00a884;
-  --notification-error: #f44336;
-  --notification-info: #2196f3;
-} */
+/* =====================================================
+   CONNECTHUB HOME – UNIQUE MODERN DESIGN
+   ===================================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --primary: #7c3aed;
+  --primary-dark: #5b4dff;
+  --primary-soft: rgba(124, 58, 237, 0.12);
+  --bg: #f4f5f9;
+  --sidebar-bg: #ffffff;
+  --chat-bg: #f8f9fc;
+  --card: #ffffff;
+  --text: #1a1a2e;
+  --text-secondary: #6b7280;
+  --border: #e5e7eb;
+  --hover: #f3f4f6;
+  --online: #22c55e;
+  --danger: #ef4444;
+  --success: #10b981;
+}
+
+[data-theme="dark"] {
+  --bg: #0f111a;
+  --sidebar-bg: #161b2a;
+  --chat-bg: #0f111a;
+  --card: #1c2235;
+  --text: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --border: #2a3145;
+  --hover: #252b3d;
+  --primary-soft: rgba(124, 58, 237, 0.2);
+}
+
+/* ========== PAGE ========== */
 
 .hm-page {
-    display: flex;
-    height: 100vh;
-    background: var(--body-bg);
-    margin-left: 60px;
+  padding-left: 4em;
+  display: flex;
+  height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  overflow: hidden;
 }
 
-/* NOTIFICATION */
-.hm-notification {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 14px 24px;
-    border-radius: 8px;
-    color: white;
-    font-weight: 500;
-    z-index: 1000;
-    animation: slideIn 0.3s ease-out;
-    max-width: 90%;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-}
+/* ========== LOADING ========== */
 
-.hm-notification-success {
-    background: var(--notification-success);
-}
-
-.hm-notification-error {
-    background: var(--notification-error);
-}
-
-.hm-notification-info {
-    background: var(--notification-info);
-}
-
-@keyframes slideIn {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-/* SIDEBAR */
-.hm-sidebar {
-    width: 320px;
-    min-width: 280px;
-    background: var(--hmbar-bg);
-    border-right: 1px solid var(--sidebar-border);
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    overflow: hidden;
-    transition: transform 0.3s ease;
-}
-
-.hm-sidebar-header {
-    padding: 16px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--sidebar-border);
-}
-
-.hm-sidebar-header h2 {
-    margin: 0;
-    font-size: 20px;
-    color: var(--sidebar-icon-hover);
-}
-
-.hm-logout-btn {
-    background: none;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
-    padding: 4px;
-    color: var(--sidebar-icon);
-    transition: color 0.2s;
-}
-
-.hm-logout-btn:hover { 
-    color: #f44336; 
-}
-
-/* SEARCH */
-.hm-search {
-    padding: 10px 16px;
-}
-
-.hm-search input {
-    width: 100%;
-    padding: 10px 16px;
-    border: none;
-    border-radius: 8px;
-    background: var(--sidebar-hover-bg);
-    color: var(--sidebar-icon-hover);
-    outline: none;
-    font-size: 14px;
-    box-sizing: border-box;
-}
-
-.hm-search input::placeholder { 
-    color: var(--sidebar-icon); 
-}
-
-/* TABS */
-.hm-tabs {
-    display: flex;
-    gap: 6px;
-    padding: 8px 16px 12px;
-    border-bottom: 1px solid var(--sidebar-border);
-}
-
-.hm-tab {
-    flex: 1;
-    padding: 7px 10px;
-    border: none;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    background: var(--sidebar-hover-bg);
-    color: var(--sidebar-icon);
-    position: relative;
-    transition: all 0.2s;
-}
-
-.hm-tab:hover {
-    background: var(--sidebar-active-bg);
-    color: var(--sidebar-icon-hover);
-}
-
-.hm-tab.active {
-    background: #00a884;
-    color: white;
-}
-
-.hm-badge {
-    position: absolute;
-    top: -4px;
-    right: -4px;
-    background: #f44336;
-    color: white;
-    border-radius: 50%;
-    width: 18px;
-    height: 18px;
-    font-size: 11px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* LIST */
-.hm-list {
-    flex: 1;
-    overflow-y: auto;
-    padding: 8px 0;
-}
-
-/* ITEM */
-.hm-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    cursor: pointer;
-    transition: background 0.2s;
-    margin: 2px 8px;
-    border-radius: 8px;
-}
-
-.hm-item:hover { 
-    background: var(--sidebar-hover-bg); 
-}
-
-.hm-item-active { 
-    background: var(--sidebar-active-bg) !important; 
-    color: var(--sidebar-active-icon);
-}
-
-/* AVATAR */
-.hm-avatar {
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    background: #7c3aed;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 18px;
-    flex-shrink: 0;
-    position: relative;
-}
-
-.hm-online-dot {
-    position: absolute;
-    bottom: 1px;
-    right: 1px;
-    width: 12px;
-    height: 12px;
-    background: #44b700;
-    border-radius: 50%;
-    border: 2px solid var(--sidebar-bg);
-}
-
-.hm-item-info {
-    flex: 1;
-    min-width: 0;
-}
-
-.hm-item-name {
-    font-weight: 500;
-    color: var(--sidebar-icon-hover);
-    font-size: 15px;
-}
-
-.hm-item-sub {
-    font-size: 13px;
-    color: var(--sidebar-icon);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.hm-item-time {
-    font-size: 11px;
-    color: var(--sidebar-icon);
-    flex-shrink: 0;
-}
-
-/* ADD FRIEND BUTTON */
-.hm-add-btn {
-    padding: 7px 16px;
-    background: #00a884;
-    color: white;
-    border: none;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    flex-shrink: 0;
-    transition: background 0.2s;
-}
-
-.hm-add-btn:hover { 
-    background: #008f72; 
-}
-
-/* REQUEST BUTTONS */
-.hm-req-actions {
-    display: flex;
-    gap: 8px;
-    flex-shrink: 0;
-}
-
-.hm-accept-btn {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    border: none;
-    background: #00a884;
-    color: white;
-    font-size: 15px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.hm-accept-btn:hover { 
-    background: #008f72; 
-}
-
-.hm-reject-btn {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    border: none;
-    background: #f44336;
-    color: white;
-    font-size: 15px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.hm-reject-btn:hover { 
-    background: #d32f2f; 
-}
-
-/* EMPTY STATE */
-.hm-empty {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 20px;
-    text-align: center;
-    color: var(--sidebar-icon);
-}
-
-.hm-empty h3 {
-    color: var(--sidebar-icon-hover);
-    margin-bottom: 8px;
-}
-
-/* CHAT SCREEN */
-.hm-chat {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    background: var(--body-bg);
-}
-
-.hm-chat-header {
-    padding: 12px 20px;
-    background: var(--sidebar-bg);
-    border-bottom: 1px solid var(--sidebar-border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.hm-chat-header-info {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-}
-
-.hm-back-btn {
-    display: none;
-    background: none;
-    border: none;
-    color: var(--sidebar-icon-hover);
-    font-size: 24px;
-    cursor: pointer;
-    padding: 0;
-}
-
-.hm-chat-name {
-    font-weight: 600;
-    color: var(--sidebar-icon-hover);
-    font-size: 16px;
-}
-
-.hm-chat-status {
-    font-size: 13px;
-    color: var(--sidebar-icon);
-}
-
-.hm-chat-actions {
-    display: flex;
-    gap: 20px;
-    font-size: 22px;
-    color: var(--sidebar-icon);
-    cursor: pointer;
-}
-
-/* MESSAGES */
-.hm-messages {
-    flex: 1;
-    padding: 20px 30px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.hm-msg {
-    display: flex;
-    max-width: 70%;
-}
-
-.hm-msg-sent { 
-    align-self: flex-end; 
-}
-
-.hm-msg-received { 
-    align-self: flex-start; 
-}
-
-.hm-msg-bubble {
-    padding: 10px 16px;
-    border-radius: 12px;
-    font-size: 15px;
-    word-wrap: break-word;
-}
-
-.hm-msg-sent .hm-msg-bubble {
-    background: var(--hm-msg-sent);
-    color: white;
-    border-bottom-right-radius: 4px;
-}
-
-.hm-msg-received .hm-msg-bubble {
-    background: var(--hm-msg-recieved);
-    color: var(--hm-msg-recieved-color);
-    border-bottom-left-radius: 4px;
-}
-
-.hm-msg-time {
-    font-size: 11px;
-    margin-left: 8px;
-    opacity: 0.7;
-}
-
-/* INPUT BAR */
-.hm-input-bar {
-    padding: 12px 20px;
-    background: var(--sidebar-bg);
-    border-top: 1px solid var(--sidebar-border);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.hm-input-bar input {
-    flex: 1;
-    padding: 10px 16px;
-    border: none;
-    border-radius: 8px;
-    background: var(--sidebar-hover-bg);
-    color: var(--sidebar-icon-hover);
-    outline: none;
-    font-size: 15px;
-}
-
-.hm-input-bar input::placeholder { 
-    color: var(--sidebar-icon); 
-}
-
-.hm-send-btn {
-    background: var(--hm-msg-sender);
-    border: none;
-    color: white;
-    padding: 10px 24px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background 0.2s;
-    white-space: nowrap;
-}
-
-.hm-send-btn:hover { 
-    background: #008f72; 
-}
-
-/* NO CHAT SELECTED */
-.hm-no-chat {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: var(--sidebar-icon);
-    text-align: center;
-}
-
-.hm-no-chat-icon { 
-    font-size: 64px; 
-    margin-bottom: 20px; 
-}
-
-.hm-no-chat h2 { 
-    color: var(--sidebar-icon-hover); 
-    margin-bottom: 8px; 
-}
-
-/* LOADING */
 .hm-loading {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
 }
 
 .hm-spinner {
-    width: 48px;
-    height: 48px;
-    border: 4px solid var(--sidebar-border);
-    border-top: 4px solid #00a884;
-    border-radius: 50%;
-    animation: hm-spin 1s linear infinite;
+  width: 42px;
+  height: 42px;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
 
-@keyframes hm-spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
-/* GROUP AVATAR */
-.hm-avatar-group {
-    background: #7c3aed;
+/* ========== SIDEBAR ========== */
+
+.hm-sidebar {
+  width: 360px;
+  min-width: 360px;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  /* padding: 0 0 0 2px ; */
 }
 
-/* GROUP MESSAGE SENDER NAME */
-.hm-msg-sender {
-    font-size: 11px;
-    font-weight: bold;
-    color: var(hm-msg-sender);
-    margin-bottom: 4px;
+.hm-sidebar-top {
+  padding: 20px 20px 12px;
 }
 
-/* BACK BUTTON */
-.hm-back-btn {
-    background: none;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
-    color: var(--sidebar-icon);
-    padding: 4px 8px;
-    display: none;
+.hm-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-/* NOTIFICATION TOAST */
-.hm-notification {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 12px 20px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 500;
-    z-index: 9999;
-    animation: slideIn 0.3s ease;
+.hm-brand img {
+  width: 36px;
+  height: 36px;
 }
 
-.hm-notification-success { background: #00a884; color: white; }
-.hm-notification-error { background: #f44336; color: white; }
-.hm-notification-info { background: #2196f3; color: white; }
-
-@keyframes slideIn {
-    from { transform: translateX(100px); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
+.hm-brand span {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  color: var(--text);
 }
 
-/* MODAL */
-.hm-modal-overlay {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
+/* Search */
+
+.hm-search {
+  padding: 0 16px 12px;
 }
 
-.hm-modal {
-    background: var(--sidebar-bg);
-    border-radius: 16px;
-    width: 90%;
-    max-width: 400px;
-    max-height: 80vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+.hm-search input {
+  width: 100%;
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--hover);
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+  transition: 0.2s;
 }
 
-.hm-modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--sidebar-border);
+.hm-search input:focus {
+  border-color: var(--primary);
+  background: var(--card);
+  box-shadow: 0 0 0 3px var(--primary-soft);
 }
 
-.hm-modal-header h3 {
-    margin: 0;
-    color: var(--sidebar-icon-hover);
+/* Navigation */
+
+.hm-nav {
+  display: flex;
+  gap: 4px;
+  padding: 0 12px 12px;
 }
 
-.hm-modal-header button {
-    background: none;
-    border: none;
-    font-size: 18px;
-    cursor: pointer;
-    color: var(--sidebar-icon);
+.hm-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 4px;
+  border: none;
+  background: transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  transition: 0.2s;
+  position: relative;
 }
 
-.hm-modal-input {
-    padding: 12px 16px;
-    border: none;
-    border-bottom: 1px solid var(--sidebar-border);
-    outline: none;
-    background: var(--hm-modal-input);
-    color: var(--sidebar-icon-hover);
-    font-size: 14px;
-    width: 100%;
-    box-sizing: border-box;
+.hm-nav-item:hover {
+  background: var(--hover);
+  color: var(--text);
 }
 
-.hm-modal-list {
-    flex: 1;
-    overflow-y: auto;
+.hm-nav-item.active {
+  background: var(--primary-soft);
+  color: var(--primary);
 }
 
-/* MOBILE */
-@media (max-width: 768px) {
-    .hm-back-btn { display: block; }
-    .hm-sidebar-hidden { display: none; }
-    .hm-chat { display: none; }
-    .hm-chat.hm-chat-open { display: flex; }
+.hm-nav-icon {
+  font-size: 18px;
 }
 
-/* ============================================
-   FIX: Group Messages Container
-   ============================================ */
-.hm-messages {
-    flex: 1;
-    padding: 20px 30px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 6px; /* Space between messages */
+.hm-badge {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  background: var(--primary);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
 }
 
-/* ============================================
-   FIX: Individual Message Spacing
-   ============================================ */
-.hm-msg {
-    display: flex;
-    max-width: 70%;
-    margin-bottom: 2px; /* Extra space between messages */
+/* List */
+
+.hm-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 8px 20px;
 }
 
-/* ============================================
-   FIX: Group Message Sender Name
-   ============================================ */
-.hm-msg-sender {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--sidebar-active-icon);
-    margin-bottom: 4px; /* Space between sender name and message */
+.hm-list-header {
+  padding: 8px 8px 12px;
 }
 
-/* ============================================
-   FIX: Message Bubble Spacing
-   ============================================ */
-.hm-msg-bubble {
-    padding: 10px 16px;
-    border-radius: 12px;
-    font-size: 15px;
-    word-wrap: break-word;
-    line-height: 1.5; /* Better line height for readability */
+.hm-create-space {
+  width: 100%;
+  height: 42px;
+  border: 1.5px dashed var(--border);
+  background: transparent;
+  border-radius: 12px;
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s;
 }
 
-/* ============================================
-   FIX: Message Time inside bubble
-   ============================================ */
-.hm-msg-time {
-    font-size: 11px;
-    margin-left: 10px;
-    opacity: 0.7;
-    white-space: nowrap;
+.hm-create-space:hover {
+  background: var(--primary-soft);
+  border-color: var(--primary);
 }
 
-/* ============================================
-   FIX: Sent messages (your messages)
-   ============================================ */
-.hm-msg-sent {
-    align-self: flex-end;
+/* List Item */
+
+.hm-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: 0.15s;
+  margin-bottom: 2px;
 }
 
-.hm-msg-sent .hm-msg-bubble {
-    background: var(--hm-msg-sent);
-    color: white;
-    border-bottom-right-radius: 4px;
+.hm-item:hover {
+  background: var(--hover);
 }
 
-/* ============================================
-   FIX: Received messages (others)
-   ============================================ */
-.hm-msg-received {
-    align-self: flex-start;
+.hm-item.active {
+  background: var(--primary-soft);
 }
 
-.hm-msg-received .hm-msg-bubble {
-    background: var(--hm-msg-recieved);
-    color: var(--hm-msg-recieved-color);
-    border-bottom-left-radius: 4px;
+.hm-item.selected {
+  background: var(--primary-soft);
 }
 
-/* ============================================
-   FIX: Group messages - show sender name above
-   ============================================ */
-.hm-msg-received .hm-msg-sender {
-    display: block;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--sidebar-active-icon);
-    margin-bottom: 4px;
+.hm-item-body {
+  flex: 1;
+  min-width: 0;
 }
 
-.hm-msg-sent .hm-msg-sender {
-    display: none; /* Hide sender name for your own messages */
+.hm-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
 }
 
-/* ============================================
-   FIX: Message wrapper for group messages
-   ============================================ */
-.hm-msg-group {
-    display: flex;
-    flex-direction: column;
-    max-width: 70%;
-    margin-bottom: 4px;
+.hm-item-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.hm-msg-group .hm-msg-bubble {
-    border-radius: 12px;
-    border-bottom-left-radius: 4px;
+.hm-item-preview {
+  font-size: 13px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
 }
 
-.hm-msg-group .hm-msg-sender {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--sidebar-active-icon);
-    padding-left: 4px;
-    margin-bottom: 4px;
+.hm-item-time {
+  font-size: 11px;
+  color: var(--text-secondary);
+  flex-shrink: 0;
 }
 
-/* ============================================
-   FIX: Messages scroll container
-   ============================================ */
-.hm-messages::-webkit-scrollbar {
-    width: 6px;
+.hm-unread {
+  background: var(--primary);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+  flex-shrink: 0;
 }
 
-.hm-messages::-webkit-scrollbar-track {
-    background: transparent;
+/* Avatar */
+
+.hm-avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 18px;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
 }
 
-.hm-messages::-webkit-scrollbar-thumb {
-    background: var(--sidebar-border);
-    border-radius: 10px;
-}
-
-.hm-messages::-webkit-scrollbar-thumb:hover {
-    background: var(--sidebar-icon);
-}
-
-.hm-avatar img.hm-avatar-img {
+.hm-avatar-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.hm-avatar-group {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+}
+
+.hm-online-dot {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 11px;
+  height: 11px;
+  background: var(--online);
+  border: 2px solid var(--sidebar-bg);
   border-radius: 50%;
+}
+
+/* Action buttons */
+
+.hm-action-btn {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 7px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+  flex-shrink: 0;
+}
+
+.hm-action-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.hm-invite-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.hm-accept,
+.hm-decline {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.15s;
+}
+
+.hm-accept {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.hm-accept:hover {
+  background: #bbf7d0;
+}
+
+.hm-decline {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.hm-decline:hover {
+  background: #fecaca;
+}
+
+/* Empty states */
+
+.hm-empty {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text-secondary);
+}
+
+.hm-empty-icon {
+  font-size: 40px;
+  margin-bottom: 16px;
+  opacity: 0.7;
+}
+
+.hm-empty h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.hm-empty p {
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+/* ========== CHAT PANE ========== */
+
+.hm-chat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--chat-bg);
+  height: 100%;
+  min-width: 0;
+}
+
+.hm-chat-header {
+  height: 72px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--sidebar-bg);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.hm-back {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: var(--text);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.hm-back:hover {
+  background: var(--hover);
+}
+
+.hm-chat-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.hm-chat-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.hm-chat-sub {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 1px;
+}
+
+.hm-typing {
+  color: var(--primary) !important;
+  font-weight: 500;
+}
+
+.hm-more {
+  background: none;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  color: var(--text-secondary);
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.15s;
+}
+
+.hm-more:hover {
+  background: var(--hover);
+  color: var(--danger);
+}
+
+/* Messages area */
+
+.hm-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hm-msg {
+  display: flex;
+  max-width: 70%;
+}
+
+.hm-msg.sent {
+  align-self: flex-end;
+}
+
+.hm-msg.received {
+  align-self: flex-start;
+}
+
+.hm-bubble {
+  position: relative;
+  padding: 10px 14px 8px;
+  border-radius: 16px;
+  font-size: 14.5px;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.hm-msg.sent .hm-bubble {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+.hm-msg.received .hm-bubble {
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-bottom-left-radius: 4px;
+}
+
+.hm-sender {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+
+.hm-time {
   display: block;
+  font-size: 11px;
+  opacity: 0.7;
+  margin-top: 4px;
+  text-align: right;
+}
+
+.hm-msg.sent .hm-time {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.hm-msg-image {
+  max-width: 260px;
+  border-radius: 12px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.hm-ticks {
+  margin-right: 4px;
+  font-size: 12px;
 }
 
 .hm-ticks-read {
-    color: yellow;
+  color: #93c5fd;
 }
 
-/* ============================================================
-   MOBILE CHAT INPUT FIX
-   ============================================================ */
-.hm-input-bar {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 16px;
-    background: var(--sidebar-bg);
-    border-top: 1px solid var(--sidebar-border);
-    position: sticky;
-    bottom: 0;
+.hm-ticks-delivered {
+  opacity: 0.9;
+}
+
+/* Message menu */
+
+.hm-msg-menu-btn {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  background: transparent;
+  border: none;
+  color: inherit;
+  opacity: 0;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.hm-bubble:hover .hm-msg-menu-btn {
+  opacity: 0.7;
+}
+
+.hm-msg-menu {
+  position: absolute;
+  top: 28px;
+  right: 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 20;
+  overflow: hidden;
+  min-width: 150px;
+}
+
+.hm-msg-menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 14px;
+  border: none;
+  background: none;
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.hm-msg-menu button:hover {
+  background: var(--hover);
+}
+
+/* Composer */
+
+.hm-composer {
+  padding: 16px 20px;
+  background: var(--sidebar-bg);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.hm-composer input[type="text"] {
+  flex: 1;
+  height: 48px;
+  padding: 0 18px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--hover);
+  color: var(--text);
+  font-size: 15px;
+  outline: none;
+  transition: 0.2s;
+}
+
+.hm-composer input[type="text"]:focus {
+  border-color: var(--primary);
+  background: var(--card);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+
+.hm-attach {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: none;
+  background: var(--hover);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.15s;
+  flex-shrink: 0;
+}
+
+.hm-attach:hover {
+  background: var(--primary-soft);
+}
+
+.hm-send {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  border: none;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s;
+  flex-shrink: 0;
+}
+
+.hm-send:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(124, 58, 237, 0.35);
+}
+
+/* Empty chat state */
+
+.hm-empty-chat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px;
+  color: var(--text-secondary);
+}
+
+.hm-empty-chat-icon {
+  font-size: 56px;
+  margin-bottom: 20px;
+  opacity: 0.6;
+}
+
+.hm-empty-chat h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.hm-empty-chat p {
+  font-size: 15px;
+  max-width: 320px;
+  line-height: 1.5;
+}
+
+/* ========== MODAL ========== */
+
+.hm-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.hm-modal {
+  width: 100%;
+  max-width: 420px;
+  max-height: 80vh;
+  background: var(--card);
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+}
+
+.hm-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 20px 12px;
+}
+
+.hm-modal-header h3 {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.hm-modal-header button {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+}
+
+.hm-modal-header button:hover {
+  background: var(--hover);
+}
+
+.hm-modal-input {
+  margin: 0 20px 12px;
+  height: 46px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--hover);
+  color: var(--text);
+  font-size: 15px;
+  outline: none;
+}
+
+.hm-modal-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+
+.hm-modal-label {
+  padding: 0 20px 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.hm-modal-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 12px 12px;
+}
+
+.hm-modal-empty {
+  text-align: center;
+  padding: 24px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.hm-check {
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.hm-modal-footer {
+  padding: 12px 20px 20px;
+}
+
+.hm-create-btn {
+  width: 100%;
+  height: 48px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.hm-create-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.hm-create-btn:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(124, 58, 237, 0.3);
+}
+
+/* ========== NOTIFICATION ========== */
+
+.hm-notification {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 2000;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.hm-notification-success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.hm-notification-error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.hm-notification-info {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+/* ========== RESPONSIVE ========== */
+
+@media (max-width: 900px) {
+.hm-page{
+    padding-left: 0;
+}
+  .hm-sidebar {
     width: 100%;
-    z-index: 10;
-}
+    min-width: 100%;
+  }
 
-.hm-input-bar input {
-    flex: 1;
-    padding: 10px 14px;
-    border: none;
-    border-radius: 20px;
-    background: var(--sidebar-hover-bg);
-    color: var(--sidebar-icon-hover);
-    outline: none;
-    font-size: 15px;
-    min-width: 0;
-}
+  .hm-sidebar-hidden {
+    display: none;
+  }
 
-.hm-input-bar .hm-send-btn {
-    background: #00a884;
-    border: none;
-    color: white;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
+  .hm-chat {
+    display: none;
+  }
+
+  .hm-chat-open {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 20px;
-    flex-shrink: 0;
-}
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+  }
 
-.hm-input-bar .hm-send-btn:hover {
-    background: #008f72;
-}
+  .hm-back {
+    display: block;
+  }
 
-/* ============================================================
-   MOBILE - SHOW CHAT SCREEN
-   ============================================================ */
-@media (max-width: 768px) {
-    .hm-chat {
-        display: none;
-        flex-direction: column;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: var(--body-bg);
-        z-index: 1000;
-    }
-
-    .hm-chat-open {
-        display: flex !important;
-    }
-
-    .hm-input-bar {
-        position: sticky;
-        bottom: 0;
-        background: var(--sidebar-bg);
-        padding: 10px 12px;
-    }
-
-    .hm-input-bar input {
-        font-size: 14px;
-        padding: 10px 14px;
-    }
-
-    .hm-input-bar .hm-send-btn {
-        width: 40px;
-        height: 40px;
-        font-size: 18px;
-    }
-
-    /* Show back button on mobile */
-    .hm-back-btn {
-        display: flex !important;
-        background: none;
-        border: none;
-        font-size: 22px;
-        color: var(--sidebar-icon-hover);
-        cursor: pointer;
-        padding: 4px 8px;
-    }
-}
-
-/* ============================================================
-   DESKTOP - HIDE BACK BUTTON
-   ============================================================ */
-@media (min-width: 769px) {
-    .hm-back-btn {
-        display: none !important;
-    }
-}
-
-/* MOBILE RESPONSIVE */
-@media (max-width: 768px) {
-    .hm-page {
-        margin-left: 0;
-    }
-
-    .hm-sidebar {
-        width: 100%;
-        min-width: 100%;
-        height: 100vh;
-        position: fixed;
-        top: 0;
-        left: 0;
-        z-index: 100;
-        transition: transform 0.3s ease;
-    }
-
-    .hm-sidebar-hidden {
-        transform: translateX(-100%);
-    }
-
-    .hm-chat {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 200;
-        background: var(--body-bg);
-        display: none;
-        width: 100%;
-        height: 100vh;
-    }
-
-    .hm-chat-open {
-        display: flex !important;
-        animation: slideUp 0.3s ease;
-    }
-
-    @keyframes slideUp {
-        from {
-            transform: translateY(100%);
-        }
-        to {
-            transform: translateY(0);
-        }
-    }
-
-    .hm-back-btn {
-        display: block;
-    }
-
-    .hm-messages {
-        padding: 16px;
-    }
-
-    .hm-msg {
-        max-width: 85%;
-    }
-
-    .hm-chat-header {
-        padding: 12px 16px;
-    }
-
-    .hm-input-bar {
-        padding: 12px 16px;
-    }
-
-    .hm-notification {
-        top: 10px;
-        right: 10px;
-        left: 10px;
-        max-width: 100%;
-        text-align: center;
-    }
+  .hm-msg {
+    max-width: 85%;
+  }
 }
 
 @media (max-width: 480px) {
-    .hm-avatar {
-        width: 40px;
-        height: 40px;
-        font-size: 16px;
-    }
+  .hm-nav-item span:not(.hm-nav-icon):not(.hm-badge) {
+    font-size: 11px;
+  }
 
-    .hm-item {
-        padding: 10px 12px;
-        margin: 2px 4px;
-    }
+  .hm-composer {
+    padding: 12px 14px;
+  }
 
-    .hm-item-name {
-        font-size: 14px;
-    }
-
-    .hm-item-sub {
-        font-size: 12px;
-    }
-
-    .hm-tab {
-        font-size: 12px;
-        padding: 6px 8px;
-    }
-
-    .hm-sidebar-header h2 {
-        font-size: 18px;
-    }
-
-    .hm-msg-bubble {
-        font-size: 14px;
-        padding: 8px 12px;
-    }
-
-    .hm-input-bar input {
-        font-size: 14px;
-        padding: 8px 12px;
-    }
-
-    .hm-send-btn {
-        padding: 8px 16px;
-        font-size: 14px;
-    }
-
-    .hm-empty h3 {
-        font-size: 18px;
-    }
-
-    .hm-empty p {
-        font-size: 14px;
-    }
+  .hm-messages {
+    padding: 16px 14px;
+  }
 }
 
-/* Landscape phone mode */
-@media (max-height: 500px) and (orientation: landscape) {
-    .hm-sidebar {
-        height: 100vh;
-    }
+/* Scrollbar */
 
-    .hm-sidebar-header {
-        padding: 10px 16px;
-    }
+.hm-list::-webkit-scrollbar,
+.hm-messages::-webkit-scrollbar,
+.hm-modal-list::-webkit-scrollbar {
+  width: 5px;
+}
 
-    .hm-item {
-        padding: 8px 12px;
-    }
-
-    .hm-avatar {
-        width: 36px;
-        height: 36px;
-        font-size: 14px;
-    }
-
-    .hm-messages {
-        padding: 12px 16px;
-    }
-
-    .hm-input-bar {
-        padding: 8px 16px;
-    }
+.hm-list::-webkit-scrollbar-thumb,
+.hm-messages::-webkit-scrollbar-thumb,
+.hm-modal-list::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 10px;
 }

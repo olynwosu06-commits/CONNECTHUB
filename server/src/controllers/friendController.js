@@ -132,6 +132,32 @@ const getFriends = async (req, res) => {
     }
 };
 
+// ✅ NEW: Remove/unfriend an accepted friend
+const removeFriend = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { friendId } = req.params;
+
+        // Find the accepted FriendRequest doc linking these two users, in either direction
+        const request = await FriendRequest.findOneAndDelete({
+            status: 'accepted',
+            $or: [
+                { sender: userId, receiver: friendId },
+                { sender: friendId, receiver: userId }
+            ]
+        });
+
+        if (!request) {
+            return res.status(404).json({ message: "Friendship not found" });
+        }
+
+        res.status(200).json({ message: "Friend removed" });
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // Get list of all users EXCLUDING self, existing friends, and pending requests (for "Add Friend" search)
 const getDiscoverableUsers = async (req, res) => {
     try {
@@ -160,5 +186,6 @@ module.exports = {
     rejectFriendRequest,
     getPendingRequests,
     getFriends,
+    removeFriend,
     getDiscoverableUsers
 };

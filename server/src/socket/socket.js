@@ -43,18 +43,19 @@ const socketIO = (io) => {
         // ==========================================
         // 2. PRIVATE MESSAGE → 1-on-1 chat
         // ==========================================
-        // After saving private message, mark as delivered if receiver is online
-        socket.on('private-message', async (data) => {
-            try {
-                const { receiverId, text } = data;
-                if (!receiverId || !text) return;
+                socket.on('private-message', async (data) => {
+                    try {
+                        const { receiverId, text, image } = data;
+                        // ✅ Allow image-only messages (no text required if there's an image)
+                        if (!receiverId || (!text && !image)) return;
 
-                const message = await Message.create({
-                    sender: socket.userId,
-                    receiver: receiverId,
-                    text,
-                    read: false,
-                    delivered: false
+                        const message = await Message.create({
+                            sender: socket.userId,
+                            receiver: receiverId,
+                            text: text || '',
+                            image: image || '',
+                            read: false,
+                            delivered: false
                 });
 
                 const receivers = onlineUsers.filter(u => u.userId === receiverId);

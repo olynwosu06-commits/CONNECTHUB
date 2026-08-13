@@ -17,14 +17,10 @@ function Login() {
     setError('');
 
     try {
-      // await axios.post('http://localhost:5000/api/auth/login', 
-      const response = await axios.post(`${API_BASE_URL}/api/auth/login`, 
-         {
+      const response = await axios.post(`${API_BASE_URL}/api/auth/login`, {
         email,
         password,
       });
-
-      console.log('✅ Login response:', response.data);
 
       const { token, user } = response.data;
 
@@ -35,9 +31,7 @@ function Login() {
       }
 
       if (!user || !user._id) {
-        setError(
-          'Login failed: user data missing — make sure your backend login returns the user object'
-        );
+        setError('Login failed: user data missing');
         setLoading(false);
         return;
       }
@@ -45,224 +39,114 @@ function Login() {
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
 
-      console.log('✅ Saved to localStorage:', { token, user });
-
       navigate('/loading');
     } catch (err) {
-      console.error('❌ Login error:', err.response?.data || err.message);
       setError(err.response?.data?.message || 'Login failed');
       setLoading(false);
     }
   };
 
-return (
-  <div className="login-page">
-
-    {/* ========= LEFT PANEL ========= */}
-    <section className="login-left">
-
-      <div className="left-content">
-
-        <div className="brand">
-          <img
-            src="https://res.cloudinary.com/daaiil1ah/image/upload/v1784995479/free-whatsapp-logo-icon-4456-thumb_cvjd7y.png"
-            alt="ConnectHub Logo"
-          />
-
-          <div>
-            <h1>ConnectHub</h1>
-            <p>Real-time conversations.</p>
-          </div>
-        </div>
-
-        <div className="hero-text">
-          <h3>
-            Connect.
-            <br />
-            Chat.
-            <br />
-            Stay Close.
-          </h3>
-
-          <p>
-            A modern messaging platform built for fast, secure and
-            real-time communication. Designed to keep everyone connected,
-            anywhere in the world.
-          </p>
-        </div>
-
-        <div className="chat-preview">
-
-          <div className="message received">
-            <span className="avatar">😊</span>
-
-            <div className="bubble">
-              <h5>Sarah</h5>
-              <p>Hey! Are we still meeting today?</p>
-              <small>10:30 AM</small>
+  return (
+    <div className="login-page">
+      {/* LEFT SIDE */}
+      <section className="login-left">
+        <div className="left-content">
+          <div className="brand">
+            <img
+              src="https://res.cloudinary.com/daaiil1ah/image/upload/v1784995479/free-whatsapp-logo-icon-4456-thumb_cvjd7y.png"
+              alt="ConnectHub"
+            />
+            <div>
+              <h1>ConnectHub</h1>
+              <p>Real-time conversations</p>
             </div>
           </div>
 
-          <div className="message sent">
+          <div className="hero">
+            <h2>
+              Connect with the<br />
+              people that matter.
+            </h2>
+            <p>
+              Fast, secure and reliable messaging designed for the way you
+              communicate today.
+            </p>
+          </div>
 
-            <div className="bubble">
-              <h5>You</h5>
-              <p>Absolutely! I'll be there in 10 mins.</p>
-              <small>10:31 AM</small>
+          <div className="left-footer">
+            <span>Trusted by teams worldwide</span>
+          </div>
+        </div>
+      </section>
+
+      {/* RIGHT SIDE */}
+      <section className="login-right">
+        <div className="login-card">
+          <div className="mobile-brand">
+            <img
+              src="https://res.cloudinary.com/daaiil1ah/image/upload/v1784995479/free-whatsapp-logo-icon-4456-thumb_cvjd7y.png"
+              alt="logo"
+            />
+            <h3>ConnectHub</h3>
+          </div>
+
+          <div className="card-header">
+            <h2>Welcome back</h2>
+            <p>Sign in to continue to your account</p>
+          </div>
+
+          <form onSubmit={handleLogin}>
+            <div className="form-group">
+              <label>Email address</label>
+              <input
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
             </div>
 
-            <span className="avatar">🚀</span>
+            <div className="form-group">
+              <div className="label-row">
+                <label>Password</label>
+                <a href="#">Forgot password?</a>
+              </div>
+              <input
+                type="password"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
 
+            {error && <div className="error">{error}</div>}
+
+            <button type="submit" className="btn-primary" disabled={loading}>
+              {loading ? 'Signing in...' : 'Sign in'}
+            </button>
+          </form>
+
+          <div className="divider">
+            <span>or</span>
           </div>
 
-        </div>
-
-        <div className="features">
-
-          <div className="feature-card">
-            <span>⚡</span>
-            <h4>Fast</h4>
-            <p>Instant messaging</p>
-          </div>
-
-          <div className="feature-card">
-            <span>🔒</span>
-            <h4>Secure</h4>
-            <p>Private conversations</p>
-          </div>
-
-          <div className="feature-card">
-            <span>🌍</span>
-            <h4>Anywhere</h4>
-            <p>Stay connected</p>
-          </div>
-
-        </div>
-
-      </div>
-
-    </section>
-
-    {/* ========= RIGHT PANEL ========= */}
-
-    <section className="login-right">
-
-      <div className="login-box">
-
-        <div className="mobile-logo">
-
-          <img
-            src="https://res.cloudinary.com/daaiil1ah/image/upload/v1784995479/free-whatsapp-logo-icon-4456-thumb_cvjd7y.png"
-            alt="logo"
-          />
-
-        </div>
-
-        <div className="welcome-back">
-
-          <h2>Welcome Back 👋</h2>
-
-          <p>
-            Login to continue your conversations.
-          </p>
-
-        </div>
-
-        <form onSubmit={handleLogin}>
-
-          <div className="input-group">
-
-            <label>Email</label>
-
-            <input
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
+          <button className="btn-google">
+            <img
+              src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg"
+              alt="Google"
             />
-
-          </div>
-
-          <div className="input-group">
-
-            <label>Password</label>
-
-            <input
-              type="password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-
-          </div>
-
-          <div className="login-options">
-
-            <label className="remember">
-
-              <input type="checkbox" />
-
-              <span>Remember me</span>
-
-            </label>
-
-            <a href="#">Forgot password?</a>
-
-          </div>
-
-          {error && (
-            <p className="error-msg">{error}</p>
-          )}
-
-          <button
-            className="btn-login"
-            type="submit"
-            disabled={loading}
-          >
-            {loading ? "Logging in..." : "Login"}
+            Continue with Google
           </button>
 
-        </form>
-
-        <div className="divider">
-
-          <span></span>
-
-          <p>OR</p>
-
-          <span></span>
-
+          <p className="signup-link">
+            Don’t have an account? <a href="/register">Create one</a>
+          </p>
         </div>
-
-        <button className="btn-google">
-
-          <img
-            src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg"
-            alt="google"
-          />
-
-          Continue with Google
-
-        </button>
-
-        <div className="signup-text">
-
-          Don't have an account?
-
-          <a href="/register"> Sign Up</a>
-
-        </div>
-
-      </div>
-
-    </section>
-
-  </div>
-);
+      </section>
+    </div>
+  );
 }
 
 export default Login;
-
-

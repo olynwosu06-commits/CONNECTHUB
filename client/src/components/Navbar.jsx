@@ -1,132 +1,146 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import '../components/Navbar.css';
 
-function Navbar() {
-    const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
-    const [dropdownOpen, setDropdownOpen] = useState(false);
-    const navigate = useNavigate();
+function Navbar({ hideOnChat = false }) {
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
-    const toggleTheme = () => {
-        const newTheme = theme === 'light' ? 'dark' : 'light';
-        setTheme(newTheme);
-        localStorage.setItem('theme', newTheme);
-        document.documentElement.setAttribute('data-theme', newTheme);
-    };
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+    document.documentElement.setAttribute('data-theme', newTheme);
+  };
 
-    const toggleDropdown = () => {
-        setDropdownOpen(prev => !prev);
-    };
+  const toggleDropdown = () => {
+    setDropdownOpen((prev) => !prev);
+  };
 
-    const handleIconClick = (path) => {
-        navigate(path);
+  const handleNavigate = (path) => {
+    navigate(path);
+    setDropdownOpen(false);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/login');
+  };
+
+  // Theme sync
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownOpen && !event.target.closest('.dropdown-container')) {
         setDropdownOpen(false);
+      }
     };
 
-    useEffect(() => {
-        document.documentElement.setAttribute('data-theme', theme);
-    }, [theme]);
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
 
-    // Close dropdown when clicking outside
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (dropdownOpen && !event.target.closest('.dropdown-container')) {
-                setDropdownOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        document.addEventListener('touchstart', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-            document.removeEventListener('touchstart', handleClickOutside);
-        };
-    }, [dropdownOpen]);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [dropdownOpen]);
 
+  // Conditional return AFTER all hooks
+  if (hideOnChat) return null;
 
-    function Navbar({ hideOnChat = false }) {
-    // ... rest of your code
+  const isActive = (path) => location.pathname === path;
 
-    if (hideOnChat) return null;
+  return (
+    <div className="side-bar">
+      {/* TOP ICONS */}
+      <ul className="menu-top">
+        <li
+          className={isActive('/home') ? 'active' : ''}
+          onClick={() => handleNavigate('/home')}
+          title="Inbox"
+        >
+          <i className="bx bx-message-square-dots"></i>
+        </li>
 
-    return (
-        <div className="side-bar">
-            {/* Navbar content */}
-        </div>
-    );
-}
+        <li
+          onClick={() => handleNavigate('/home')}
+          title="Discover"
+        >
+          <i className="bx bx-search"></i>
+        </li>
 
-    return (
-        <div className="side-bar">
-            {/* TOP ICONS */}
-            <ul className="menu-top">
-                <li className="active" onClick={() => navigate('/home')} title="Chats">
-                    <i className="bx bx-chat"></i>
+        <li
+          onClick={() => handleNavigate('/home')}
+          title="Spaces"
+        >
+          <i className="bx bx-grid-alt"></i>
+        </li>
+      </ul>
+
+      {/* BOTTOM ICONS */}
+      <ul className="menu-bottom">
+        {/* Theme Toggle */}
+        <li onClick={toggleTheme} title="Toggle Theme">
+          <i className={theme === 'light' ? 'bx bx-moon' : 'bx bx-sun'}></i>
+        </li>
+
+        {/* More Options */}
+        <li
+          className="dropdown-container"
+          onClick={toggleDropdown}
+          title="More"
+        >
+          <i
+            className={`bx bx-dots-horizontal-rounded ${
+              dropdownOpen ? 'active' : ''
+            }`}
+          ></i>
+
+          {dropdownOpen && (
+            <div
+              className="dropdown-menu"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ul>
+                <li onClick={() => handleNavigate('/home')}>
+                  <i className="bx bx-message-square-dots"></i>
+                  <span>Inbox</span>
                 </li>
-                <li onClick={() => navigate('/home')} title="Calls">
-                    <i className="bx bx-phone"></i>
+                <li onClick={() => handleNavigate('/home')}>
+                  <i className="bx bx-search"></i>
+                  <span>Discover</span>
                 </li>
-                <li onClick={() => navigate('/status')} title="Status">
-                    <i className="bx bx-circle"></i>
+                <li onClick={() => handleNavigate('/home')}>
+                  <i className="bx bx-grid-alt"></i>
+                  <span>Spaces</span>
                 </li>
-                <li title="Media">
-                    <i className="bx bx-image" />
+                <li onClick={() => handleNavigate('/settings')}>
+                  <i className="bx bx-cog"></i>
+                  <span>Settings</span>
                 </li>
-            </ul>
+                <li onClick={handleLogout} className="logout-item">
+                  <i className="bx bx-log-out"></i>
+                  <span>Logout</span>
+                </li>
+              </ul>
+            </div>
+          )}
+        </li>
 
-            {/* BOTTOM ICONS */}
-            <ul className="menu-bottom">
-                {/* <li onClick={toggleTheme} title="Toggle Theme">
-                    <i className={theme === 'light' ? 'bx bx-moon' : 'bx bx-sun'}></i>
-                </li> */}
-
-                {/* Three-dots + dropdown */}
-                <li
-                    className="dropdown-container"
-                    onClick={toggleDropdown}
-                    title="More options"
-                >
-                    <i className={`bx bx-dots-vertical-rounded ${dropdownOpen ? 'active' : ''}`}></i>
-
-                    {dropdownOpen && (
-                        <div
-                            className="dropdown-menu"
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                            <ul>
-                                <li onClick={() => handleIconClick('/home')}>
-                                    <i className="bx bx-chat"></i>
-                                    <span>Chats</span>
-                                </li>
-                                <li onClick={() => handleIconClick('/home')}>
-                                    <i className="bx bx-phone"></i>
-                                    <span>Calls</span>
-                                </li>
-                                <li onClick={() => handleIconClick('/status')}>
-                                    <i className="bx bx-circle"></i>
-                                    <span>Status</span>
-                                </li>
-                                <li onClick={() => handleIconClick('/settings')}>
-                                    <i className="bx bx-cog" />
-                                    <span>Settings</span>
-                                </li>
-                            </ul>
-                        </div>
-                    )}
-                </li>
-
-                <li
-                    onClick={() => {
-                        localStorage.removeItem('token');
-                        localStorage.removeItem('user');
-                        navigate('/login');
-                    }}
-                    title="Logout"
-                >
-                    {/* <i className="bx bxs-log-out"></i> */}
-                </li>
-            </ul>
-        </div>
-    );
+        {/* Logout */}
+        {/* <li onClick={handleLogout} title="Logout">
+          <i className="bx bx-log-out"></i>
+        </li> */}
+      </ul>
+    </div>
+  );
 }
 
 export default Navbar;

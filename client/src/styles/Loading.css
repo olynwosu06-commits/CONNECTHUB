@@ -1,765 +1,207 @@
-/*=========================================
-        CONNECTHUB LOADING UI
-=========================================*/
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
+/* ==============================
+   CONNECTHUB LOADING - CLEAN
+================================= */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.loading-screen {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, #5b4dff 0%, #7c3aed 55%, #6d28d9 100%);
+  position: relative;
+  overflow: hidden;
 }
 
-.loading-screen{
-    width:100%;
-    height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    overflow:hidden;
-    position:fixed;
-    inset:0;
-    background:linear-gradient(
-        135deg,
-        #5b4dff 0%,
-        #6e2adb 40%,
-        #7b39ed 70%,
-        #4f6cff 100%
-    );
+/* Soft decorative circles */
+.loading-screen::before {
+  content: '';
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  top: -160px;
+  left: -100px;
 }
 
-/*==========================
-      FLOATING CIRCLES
-===========================*/
-
-.bg-circle{
-    position:absolute;
-    border-radius:50%;
-    filter:blur(35px);
-    opacity:.25;
-    animation:float 9s ease-in-out infinite;
+.loading-screen::after {
+  content: '';
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  bottom: -100px;
+  right: -80px;
 }
 
-.circle-1{
-    width:320px;
-    height:320px;
-    top:-120px;
-    left:-80px;
-    background:white;
-}
-
-.circle-2{
-    width:220px;
-    height:220px;
-    right:-60px;
-    bottom:60px;
-    background:#ffffff;
-    animation-delay:2s;
-}
-
-.circle-3{
-    width:150px;
-    height:150px;
-    left:65%;
-    top:15%;
-    background:#ffffff;
-    animation-delay:4s;
-}
-
-@keyframes float{
-
-0%,100%{
-transform:translateY(0);
-}
-
-50%{
-transform:translateY(-25px);
-}
-
-}
-
-/*==========================
-      GLASS CARD
-===========================*/
-
-.loading-card{
-
-    width:470px;
-
-    max-width:92%;
-
-    padding:45px;
-
-    border-radius:30px;
-
-    backdrop-filter:blur(22px);
-
-    background:rgba(255,255,255,.12);
-
-    border:1px solid rgba(255,255,255,.18);
-
-    box-shadow:
-    0 30px 70px rgba(0,0,0,.18);
-
-    z-index:2;
-
-}
-
-/*==========================
-      BRAND
-===========================*/
-
-.brand{
-
-display:flex;
-
-align-items:center;
-
-gap:18px;
-
-margin-bottom:40px;
-
-}
-
-.loading-logo{
-
-width:72px;
-
-height:72px;
-
-animation:logoFloat 3s ease-in-out infinite;
-
-}
-
-@keyframes logoFloat{
-
-0%,100%{
-
-transform:translateY(0);
-
-}
-
-50%{
-
-transform:translateY(-10px);
-
-}
-
-}
-
-.brand-text h1{
-
-font-size:34px;
-
-font-weight:800;
-
-color:white;
-
-}
-
-.brand-text p{
-
-margin-top:5px;
-
-color:rgba(255,255,255,.8);
-
-font-size:14px;
-
-}
-
-/*==========================
-        HERO
-===========================*/
-
-.hero{
-
-margin-bottom:35px;
-
-}
-
-.hero h2{
-
-font-size:30px;
-
-font-weight:700;
-
-color:white;
-
-margin-bottom:12px;
-
-}
-
-.hero p{
-
-line-height:1.7;
-
-color:rgba(255,255,255,.82);
-
-}
-
-/*==========================
-      CHAT PREVIEW
-===========================*/
-
-.chat-preview{
-
-display:flex;
-
-flex-direction:column;
-
-gap:18px;
-
-margin-bottom:35px;
-
-}
-
-.chat-row{
-
-display:flex;
-
-align-items:flex-end;
-
-gap:12px;
-
-}
-
-.chat-row.right{
-
-justify-content:flex-end;
-
-}
-
-.avatar{
-
-width:46px;
-
-height:46px;
-
-border-radius:50%;
-
-overflow:hidden;
-
-flex-shrink:0;
-
-}
-
-.avatar img{
-
-width:100%;
-
-height:100%;
-
-object-fit:cover;
-
-}
-
-.bubble{
-
-padding:14px 18px;
-
-border-radius:18px;
-
-background:rgba(255,255,255,.16);
-
-color:white;
-
-backdrop-filter:blur(15px);
-
-font-size:14px;
-
-max-width:220px;
-
-}
-
-.sent{
-
-background:rgba(255,255,255,.28);
-
-}
-
-/*==========================
-      PROGRESS
-===========================*/
-
-.progress-section{
-
-margin-top:15px;
-
-}
-
-.progress-info{
-
-display:flex;
-
-justify-content:space-between;
-
-margin-bottom:12px;
-
-color:white;
-
-font-size:15px;
-
-font-weight:600;
-
-}
-
-.progress-container{
-
-height:10px;
-
-border-radius:30px;
-
-overflow:hidden;
-
-background:rgba(255,255,255,.15);
-
-}
-
-.progress-bar{
-
-height:100%;
-
-border-radius:30px;
-
-background:linear-gradient(
-90deg,
-#ffffff,
-#d7c7ff,
-#b0b8ff
-);
-
-transition:.35s;
-
-box-shadow:
-0 0 20px rgba(255,255,255,.5);
-
-}
-
-/*=========================================
-        LOADING STATUS
-=========================================*/
-
-.loading-status{
-
-    display:flex;
-
-    flex-direction:column;
-
-    align-items:center;
-
-    justify-content:center;
-
-    margin:30px 0 20px;
-
-}
-
-.status-text{
-
-    margin-top:14px;
-
-    color:rgba(255,255,255,.82);
-
-    font-size:14px;
-
-    text-align:center;
-
-    line-height:1.6;
-
-}
-
-/*=========================================
-          TYPING DOTS
-=========================================*/
-
-.typing-loader{
-
-    display:flex;
-
-    align-items:center;
-
-    gap:8px;
-
-}
-
-.typing-loader span{
-
-    width:12px;
+/* ========== CARD ========== */
 
-    height:12px;
-
-    border-radius:50%;
-
-    background:white;
-
-    animation:bounce 1.2s infinite ease-in-out;
-
-}
-
-.typing-loader span:nth-child(2){
-
-    animation-delay:.2s;
-
-}
-
-.typing-loader span:nth-child(3){
-
-    animation-delay:.4s;
-
-}
-
-@keyframes bounce{
-
-0%,80%,100%{
-
-transform:scale(.6);
-
-opacity:.5;
-
-}
-
-40%{
-
-transform:scale(1.2);
-
-opacity:1;
-
-}
-
-}
-
-/*=========================================
-            FEATURES
-=========================================*/
-
-.loading-features{
-
-    display:flex;
-
-    justify-content:center;
-
-    gap:12px;
-
-    flex-wrap:wrap;
-
-    margin-top:25px;
-
-}
-
-.feature{
-
-    padding:10px 18px;
-
-    border-radius:50px;
-
-    background:rgba(255,255,255,.15);
-
-    backdrop-filter:blur(18px);
-
-    color:white;
-
-    font-size:14px;
-
-    font-weight:600;
-
-    transition:.35s;
-
-}
-
-.feature:hover{
-
-    transform:translateY(-3px);
-
-    background:rgba(255,255,255,.25);
-
-}
-
-/*=========================================
-             FOOTER
-=========================================*/
-
-.loading-footer{
-
-    margin-top:35px;
-
-    text-align:center;
-
-}
-
-.loading-footer p{
-
-    color:rgba(255,255,255,.72);
-
-    font-size:13px;
-
-}
-
-.loading-footer span{
-
-    color:white;
-
-    font-weight:700;
-
-}
-
-/*=========================================
-        CARD ANIMATION
-=========================================*/
-
-.loading-card{
-
-    animation:cardEntrance .8s ease;
-
-}
-
-@keyframes cardEntrance{
-
-from{
-
-opacity:0;
-
-transform:translateY(35px) scale(.95);
-
-}
-
-to{
-
-opacity:1;
-
-transform:translateY(0) scale(1);
-
-}
-
-}
-
-/*=========================================
-        DARK MODE
-=========================================*/
-
-[data-theme="dark"] .loading-screen{
-
-    background:linear-gradient(
-        135deg,
-        #0b1326,
-        #161d36,
-        #282254,
-        #6e2adb
-    );
-
-}
-
-[data-theme="dark"] .loading-card{
-
-    background:rgba(15,23,42,.55);
-
-    border:1px solid rgba(255,255,255,.08);
-
-}
-
-[data-theme="dark"] .bubble{
-
-    background:rgba(255,255,255,.08);
-
-}
-
-[data-theme="dark"] .sent{
-
-    background:rgba(123,57,237,.45);
-
-}
-
-/*=========================================
-          MOBILE
-=========================================*/
-
-@media(max-width:768px){
-
-.loading-card{
-
-    width:92%;
-
-    padding:30px 22px;
-
-    border-radius:24px;
-
-}
-
-.brand{
-
-    justify-content:center;
-
-    text-align:center;
-
-    flex-direction:column;
-
-}
-
-.brand-text h1{
-
-    font-size:28px;
-
-}
-
-.hero{
-
-    text-align:center;
-
-}
-
-.hero h2{
-
-    font-size:24px;
-
-}
-
-.hero p{
-
-    font-size:14px;
-
-}
-
-.chat-preview{
-
-    margin:28px 0;
-
-}
-
-.avatar{
-
-    width:40px;
-
-    height:40px;
-
+.loading-card {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 420px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 24px;
+  padding: 48px 40px;
+  text-align: center;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+  animation: fadeUp 0.7s ease;
 }
-
-.bubble{
-
-    font-size:13px;
 
-    padding:12px 15px;
-
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.progress-info{
+/* ========== BRAND ========== */
 
-    font-size:13px;
-
+.loading-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 36px;
 }
-
-.status-text{
 
-    font-size:13px;
-
+.loading-brand img {
+  width: 48px;
+  height: 48px;
 }
-
-.feature{
 
-    font-size:12px;
-
-    padding:8px 14px;
-
+.loading-brand h1 {
+  font-size: 26px;
+  font-weight: 700;
+  color: white;
+  letter-spacing: -0.5px;
 }
-
-.loading-footer p{
 
-    font-size:12px;
+/* ========== MESSAGE ========== */
 
+.loading-message {
+  margin-bottom: 40px;
 }
 
+.loading-message h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 10px;
+  letter-spacing: -0.4px;
 }
 
-/*=========================================
-      SMALL MOBILE
-=========================================*/
-
-@media(max-width:450px){
-
-.loading-card{
-
-    padding:24px 18px;
-
+.loading-message p {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.5;
 }
-
-.loading-logo{
-
-    width:60px;
 
-    height:60px;
+/* ========== PROGRESS ========== */
 
+.progress-wrapper {
+  margin-bottom: 32px;
 }
 
-.hero h2{
-
-    font-size:20px;
-
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
 }
 
-.hero p{
-
-    font-size:13px;
-
+.progress-header .percent {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
-
-.chat-preview{
 
-    display:none;
-
+.progress-track {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 20px;
+  overflow: hidden;
 }
-
-.loading-features{
-
-    gap:8px;
 
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ffffff, #e0d4ff);
+  border-radius: 20px;
+  transition: width 0.3s ease;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
 }
-
-.feature{
-
-    width:100%;
-
-    text-align:center;
 
-}
+/* ========== DOTS ========== */
 
+.loading-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
 }
-
-/*=========================================
-        LARGE SCREENS
-=========================================*/
-
-@media(min-width:1400px){
 
-.loading-card{
-
-    width:540px;
-
+.loading-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.7);
+  animation: bounce 1.3s infinite ease-in-out;
 }
-
-.hero h2{
 
-    font-size:34px;
-
+.loading-dots span:nth-child(2) {
+  animation-delay: 0.15s;
 }
-
-.hero p{
-
-    font-size:16px;
 
+.loading-dots span:nth-child(3) {
+  animation-delay: 0.3s;
 }
 
+@keyframes bounce {
+  0%,
+  80%,
+  100% {
+    transform: scale(0.7);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
 }
 
-/*=========================================
-      SCROLL SAFETY
-=========================================*/
+/* ========== RESPONSIVE ========== */
 
-.loading-screen{
-
-    overflow:hidden;
-
-}
+@media (max-width: 480px) {
+  .loading-card {
+    margin: 0 20px;
+    padding: 40px 28px;
+  }
 
-.loading-card,
-.feature,
-.progress-bar,
-.bubble{
+  .loading-brand h1 {
+    font-size: 22px;
+  }
 
-    transition:all .35s ease;
+  .loading-message h2 {
+    font-size: 20px;
+  }
 
+  .loading-message p {
+    font-size: 14px;
+  }
 }
