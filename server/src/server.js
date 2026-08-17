@@ -9,7 +9,8 @@ const { Server } = require('socket.io');
 const connectDB = require('./config/database');
 const authRoutes = require('./routes/authRoutes');
 const socketIO = require('./socket/socket');
-
+const adminRoutes = require('./routes/adminRoutes');
+const notificationRoutes = require('./routes/notificationRoutes')
 const app = express();
 const server = http.createServer(app);
 
@@ -37,6 +38,8 @@ app.use('/api/friends', require('./routes/friendRoutes'));
 app.use('/api/messages', require('./routes/messageRoutes'));
 app.use('/api/groups', require('./routes/groupRoutes'));
 app.use('/api/status', require('./routes/statusRoutes'));
+app.use('/api/admin', adminRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 socketIO(io);
 

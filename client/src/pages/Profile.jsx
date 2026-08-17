@@ -254,6 +254,16 @@ function Profile() {
 
                     <div className="pf-section-title">Account</div>
                     <div className="pf-list">
+                        {profile?.role === 'admin' && (
+                            <div className="pf-list-item" onClick={() => navigate('/admin')}>
+                                <div className="pf-list-icon">🛡️</div>
+                                <div className="pf-list-body">
+                                    <span>Admin Dashboard</span>
+                                    <small>Manage users and view stats</small>
+                                </div>
+                                <i className="bx bx-chevron-right"></i>
+                            </div>
+                        )}
                         <div className="pf-list-item pf-list-danger" onClick={handleLogout}>
                             <div className="pf-list-icon">🚪</div>
                             <div className="pf-list-body">

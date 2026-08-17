@@ -29,6 +29,11 @@ const UserModel = new mongoose.Schema({
     lastSeen: {
         type: Date,
         default: Date.now // ← Track last activity
+    },
+    role: {
+    type: String,
+    enum: ['user', 'admin'],
+    default: 'user'
     }
 }, { timestamps: true }); // ← ADD THIS!
 

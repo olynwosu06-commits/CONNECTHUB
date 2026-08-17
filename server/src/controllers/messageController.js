@@ -1,5 +1,8 @@
 const Message = require('../models/MessageModel');
 
+// ======================
+// GET PRIVATE MESSAGES
+// ======================
 const getMessages = async (req, res) => {
     try {
         const userId = req.user.id;
@@ -13,15 +16,18 @@ const getMessages = async (req, res) => {
         }).sort({ createdAt: 1 });
 
         const formatted = messages
-            // ✅ Hide messages this user deleted "for me"
             .filter(msg => !msg.deletedFor.some(id => id.toString() === userId))
             .map(msg => ({
-                _id: msg._id, // ✅ needed so the frontend can target a specific message to delete
+                _id: msg._id,
                 senderId: msg.sender.toString(),
-                // ✅ Show placeholder text if deleted for everyone, like WhatsApp
                 text: msg.deletedForEveryone ? 'This message was deleted' : msg.text,
+                image: msg.image || '',
+                type: msg.type || 'text',
+                edited: msg.edited || false,
+                audio: msg.deletedForEveryone ? '' : msg.audio,
                 deletedForEveryone: msg.deletedForEveryone,
                 time: new Date(msg.createdAt).toLocaleTimeString(),
+                date: msg.createdAt, // ✅ NEW — raw date for building "Today"/"Yesterday" dividers
                 read: msg.read,
                 delivered: msg.delivered
             }));
@@ -32,7 +38,9 @@ const getMessages = async (req, res) => {
     }
 };
 
-// ✅ NEW: delete a message, either "for me" or "for everyone"
+// ======================
+// DELETE MESSAGE
+// ======================
 const deleteMessage = async (req, res) => {
     try {
         const userId = req.user.id;
@@ -53,7 +61,6 @@ const deleteMessage = async (req, res) => {
         }
 
         if (forEveryone) {
-            // Only the original sender can delete for everyone
             if (!isSender) {
                 return res.status(403).json({ message: "Only the sender can delete for everyone" });
             }
@@ -61,7 +68,6 @@ const deleteMessage = async (req, res) => {
             await message.save();
             return res.status(200).json({ message: "Message deleted for everyone", deletedForEveryone: true });
         } else {
-            // Delete for me: add this user to deletedFor if not already there
             if (!message.deletedFor.some(id => id.toString() === userId)) {
                 message.deletedFor.push(userId);
                 await message.save();
@@ -74,4 +80,50 @@ const deleteMessage = async (req, res) => {
     }
 };
 
-module.exports = { getMessages, deleteMessage };
+// ======================
+// EDIT MESSAGE (NEW)
+// ======================
+const editMessage = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { messageId } = req.params;
+        const { text } = req.body;
+
+        if (!text || !text.trim()) {
+            return res.status(400).json({ message: 'Text is required' });
+        }
+
+        const message = await Message.findById(messageId);
+
+        if (!message) {
+            return res.status(404).json({ message: 'Message not found' });
+        }
+
+        // Only the sender can edit
+        if (message.sender.toString() !== userId) {
+            return res.status(403).json({ message: 'You can only edit your own messages' });
+        }
+
+        // Don't allow editing system messages or deleted messages
+        if (message.type === 'system' || message.deletedForEveryone) {
+            return res.status(400).json({ message: 'This message cannot be edited' });
+        }
+
+        message.text = text.trim();
+        message.edited = true;
+        await message.save();
+
+        res.status(200).json({
+            message: 'Message updated',
+            updatedMessage: {
+                _id: message._id,
+                text: message.text,
+                edited: true
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+module.exports = { getMessages, deleteMessage, editMessage };

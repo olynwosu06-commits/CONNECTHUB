@@ -13,12 +13,26 @@ const MessageModel = new mongoose.Schema({
     },
     text: {
         type: String,
-        required: true
+        default: ''
+    },
+    image: {
+        type: String,
+        default: ''
+    },
+    audio: {
+        type: String,
+        default: ''
     },
     groupId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Group',
         required: false
+    },
+    // 'text' | 'system' | 'image'
+    type: {
+        type: String,
+        enum: ['text', 'system', 'image', 'audio'],
+        default: 'text'
     },
     read: {
         type: Boolean,
@@ -28,17 +42,21 @@ const MessageModel = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    // ✅ NEW: users who deleted this message "for me" (message stays for the other person)
+    // true when the message has been edited
+    edited: {
+        type: Boolean,
+        default: false
+    },
+    // users who deleted this message "for me"
     deletedFor: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     }],
-    // ✅ NEW: true when the sender deleted it "for everyone"
+    // true when the sender deleted it "for everyone"
     deletedForEveryone: {
         type: Boolean,
         default: false
     }
 }, { timestamps: true });
-
 
 module.exports = mongoose.model('Message', MessageModel);

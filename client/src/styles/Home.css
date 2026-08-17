@@ -37,7 +37,573 @@
   --primary-soft: rgba(124, 58, 237, 0.2);
 }
 
+/* ============================================================
+   INVITE BUTTONS - SMALLER
+   ============================================================ */
+.hm-invite-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+}
+
+.hm-invite-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.hm-accept-btn,
+.hm-decline-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hm-accept-btn {
+  background: #22c55e;
+  color: white;
+}
+
+.hm-accept-btn:hover {
+  background: #16a34a;
+  transform: scale(1.1);
+}
+
+.hm-decline-btn {
+  background: #ef4444;
+  color: white;
+}
+
+.hm-decline-btn:hover {
+  background: #dc2626;
+  transform: scale(1.1);
+}
+
+.hm-accept-btn:active,
+.hm-decline-btn:active {
+  transform: scale(0.9);
+}
+
+/* ============================================================
+   NOTIFICATION DOT FOR INVITES
+   ============================================================ */
+.hm-nav-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  display: inline-block;
+  animation: hm-dot-pulse 2s ease-in-out infinite;
+  margin-left: 4px;
+  flex-shrink: 0;
+}
+
+@keyframes hm-dot-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+/* ============================================================
+   HOME ICON WITH NOTIFICATION DOT
+   ============================================================ */
+.hm-brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 4px;
+}
+
+.hm-brand-icons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+.hm-profile-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  transition: background 0.3s ease;
+  color: var(--sidebar-icon);
+}
+
+.hm-profile-btn:hover {
+  background: var(--sidebar-hover-bg);
+  color: var(--sidebar-icon-hover);
+}
+
+.hm-home-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: #ef4444;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  animation: hm-dot-pulse 2s ease-in-out infinite;
+}
+
+.hm-nav-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: #ef4444;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  margin-left: 4px;
+}
+
+/* ============================================================
+   DATE DIVIDER
+   ============================================================ */
+.hm-date-divider {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 16px 0 12px;
+  position: relative;
+}
+
+.hm-date-divider::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: var(--sidebar-border);
+}
+
+.hm-date-divider span {
+  background: var(--body-bg);
+  padding: 0 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sidebar-icon);
+  position: relative;
+  z-index: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ============================================================
+   PROFILE MODAL
+   ============================================================ */
+.hm-profile-modal {
+  max-width: 420px !important;
+}
+
+.hm-profile-avatar-section {
+  display: flex;
+  justify-content: center;
+  padding: 16px 0 20px;
+}
+
+.hm-profile-avatar-wrapper {
+  position: relative;
+  width: 100px;
+  height: 100px;
+}
+
+.hm-profile-avatar-img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--sidebar-active-border);
+}
+
+.hm-profile-avatar-placeholder {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: var(--sidebar-active-bg);
+  color: var(--sidebar-active-icon);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  font-weight: 700;
+  border: 3px solid var(--sidebar-active-border);
+}
+
+.hm-profile-avatar-upload {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: var(--sidebar-active-icon);
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hm-profile-avatar-upload:hover {
+  transform: scale(1.1);
+  background: var(--sidebar-active-border);
+}
+
+.hm-profile-form {
+  padding: 0 4px 16px;
+}
+
+.hm-profile-form label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sidebar-icon);
+  margin-bottom: 6px;
+}
+
+.hm-cancel-btn {
+  padding: 8px 24px;
+  border: 1px solid var(--sidebar-border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--sidebar-icon);
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.hm-cancel-btn:hover {
+  background: var(--sidebar-hover-bg);
+}
+
+/* ============================================================
+   RESPONSIVE FIXES
+   ============================================================ */
+@media (max-width: 640px) {
+  .hm-invite-actions {
+    gap: 3px;
+  }
+  
+  .hm-accept-btn,
+  .hm-decline-btn {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+  }
+  
+  .hm-profile-avatar-wrapper,
+  .hm-profile-avatar-img,
+  .hm-profile-avatar-placeholder {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .hm-profile-avatar-upload {
+    width: 28px;
+    height: 28px;
+    font-size: 13px;
+  }
+}
+
 /* ========== PAGE ========== */
+
+/* ====================== SYSTEM MESSAGE ====================== */
+.hm-system-msg {
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  background: var(--hover);
+  padding: 6px 14px;
+  border-radius: 12px;
+  margin: 6px auto;
+  max-width: 80%;
+}
+
+/* ====================== EDITED LABEL ====================== */
+.hm-edited {
+  font-size: 10px;
+  opacity: 0.7;
+  margin-left: 6px;
+}
+
+/* ====================== EDIT MESSAGE BOX ====================== */
+.hm-edit-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 200px;
+}
+
+.hm-edit-box input {
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-size: 14px;
+  width: 100%;
+  outline: none;
+}
+
+.hm-edit-box input:focus {
+  border-color: var(--primary);
+}
+
+.hm-edit-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.hm-edit-actions button {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: none;
+  font-size: 13px;
+  cursor: pointer;
+  background: var(--primary);
+  color: white;
+}
+
+.hm-edit-actions button:last-child {
+  background: var(--hover);
+  color: var(--text);
+}
+
+/* ====================== ADMIN BADGE ====================== */
+.hm-admin-badge {
+  font-size: 10px;
+  background: var(--primary-soft);
+  color: var(--primary);
+  padding: 2px 7px;
+  border-radius: 6px;
+  margin-left: 6px;
+  font-weight: 600;
+}
+
+/* ====================== REMOVE MEMBER BUTTON ====================== */
+.hm-remove-member {
+  background: #fee2e2;
+  color: #dc2626;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+/* ============================================================
+   VOICE RECORDER STYLES (ADD THESE)
+   ============================================================ */
+
+/* Microphone button */
+.hm-mic-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  background: #4CAF50;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.hm-mic-btn:hover {
+  transform: scale(1.05);
+}
+
+.hm-mic-btn.recording {
+  background: #f44336 !important;
+  animation: pulse 0.8s infinite alternate;
+  transform: scale(1.1);
+}
+
+@keyframes pulse {
+  from { transform: scale(1); }
+  to { transform: scale(1.15); }
+}
+
+/* Recording status bar */
+.hm-recording-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background: #ffebee;
+  border-radius: 25px;
+  flex: 1;
+  min-height: 42px;
+  border: 2px solid #f44336;
+}
+
+.hm-recording-dot {
+  width: 12px;
+  height: 12px;
+  background: #f44336;
+  border-radius: 50%;
+  animation: blink 0.5s infinite;
+  flex-shrink: 0;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.hm-recording-bar span {
+  color: #d32f2f;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.hm-cancel-record {
+  background: #f44336;
+  color: white;
+  border: none;
+  border-radius: 15px;
+  padding: 4px 14px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: background 0.3s;
+  margin-left: auto;
+}
+
+.hm-cancel-record:hover {
+  background: #d32f2f;
+}
+
+/* Composer layout */
+.hm-composer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: var(--bg-secondary, #f5f5f5);
+  border-top: 1px solid var(--border-color, #e0e0e0);
+}
+
+.hm-composer input[type="text"] {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 25px;
+  background: var(--bg-input, #fff);
+  outline: none;
+  font-size: 15px;
+  min-height: 42px;
+}
+
+.hm-composer input[type="text"]:disabled {
+  opacity: 0.6;
+}
+
+.hm-attach {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background 0.3s;
+}
+
+.hm-attach:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.hm-send {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  background: #007bff;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s;
+  flex-shrink: 0;
+}
+
+.hm-send:hover {
+  background: #0056b3;
+}
+
+.hm-send:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Recording overlay (optional) */
+.hm-recording-overlay {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.85);
+  padding: 15px 25px;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  backdrop-filter: blur(10px);
+}
+
+.hm-recording-overlay span {
+  color: white;
+  font-weight: 500;
+}
+
+.hm-remove-member:hover {
+  background: #fecaca;
+}
+
+/* ====================== CHECK MARK (selected member) ====================== */
+.hm-check {
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 16px;
+}
 
 .hm-page {
   padding-left: 4em;

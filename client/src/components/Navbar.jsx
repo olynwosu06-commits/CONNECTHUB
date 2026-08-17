@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import axios from 'axios';
+import { API_BASE_URL } from '../config';
 import '../components/Navbar.css';
 
 function Navbar({ hideOnChat = false }) {
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
+
+  const token = localStorage.getItem('token');
+  const authHeaders = { headers: { Authorization: `Bearer ${token}` } };
 
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
@@ -30,12 +36,30 @@ function Navbar({ hideOnChat = false }) {
     navigate('/login');
   };
 
-  // Theme sync
+  const fetchUnreadCount = async () => {
+    if (!token) return;
+    try {
+      const res = await axios.get(`${API_BASE_URL}/api/notifications/unread-count`, authHeaders);
+      setUnreadCount(res.data.count);
+    } catch (error) {
+      console.error('Error fetching unread count:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUnreadCount();
+    const interval = setInterval(fetchUnreadCount, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    fetchUnreadCount();
+  }, [location.pathname]);
+
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownOpen && !event.target.closest('.dropdown-container')) {
@@ -52,14 +76,12 @@ function Navbar({ hideOnChat = false }) {
     };
   }, [dropdownOpen]);
 
-  // Conditional return AFTER all hooks
   if (hideOnChat) return null;
 
   const isActive = (path) => location.pathname === path;
 
   return (
     <div className="side-bar">
-      {/* TOP ICONS */}
       <ul className="menu-top">
         <li
           className={isActive('/home') ? 'active' : ''}
@@ -70,28 +92,32 @@ function Navbar({ hideOnChat = false }) {
         </li>
 
         <li
-          onClick={() => handleNavigate('/home')}
-          title="Discover"
+          onClick={() => handleNavigate('status')}
+          title="Status"
         >
           <i className="bx bx-search"></i>
         </li>
 
         <li
-          onClick={() => handleNavigate('/home')}
-          title="Spaces"
+          className={isActive('/notifications') ? 'active' : ''}
+          onClick={() => handleNavigate('/notifications')}
+          title="Notifications"
+          style={{ position: 'relative' }}
         >
-          <i className="bx bx-grid-alt"></i>
+          <i className="bx bx-bell"></i>
+          {unreadCount > 0 && (
+            <span className="nav-badge">
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </span>
+          )}
         </li>
       </ul>
 
-      {/* BOTTOM ICONS */}
       <ul className="menu-bottom">
-        {/* Theme Toggle */}
         <li onClick={toggleTheme} title="Toggle Theme">
           <i className={theme === 'light' ? 'bx bx-moon' : 'bx bx-sun'}></i>
         </li>
 
-        {/* More Options */}
         <li
           className="dropdown-container"
           onClick={toggleDropdown}
@@ -113,13 +139,9 @@ function Navbar({ hideOnChat = false }) {
                   <i className="bx bx-message-square-dots"></i>
                   <span>Inbox</span>
                 </li>
-                <li onClick={() => handleNavigate('/home')}>
+                <li onClick={() => handleNavigate('status')}>
                   <i className="bx bx-search"></i>
-                  <span>Discover</span>
-                </li>
-                <li onClick={() => handleNavigate('/home')}>
-                  <i className="bx bx-grid-alt"></i>
-                  <span>Spaces</span>
+                  <span>Status</span>
                 </li>
                 <li onClick={() => handleNavigate('/settings')}>
                   <i className="bx bx-cog"></i>
@@ -133,11 +155,6 @@ function Navbar({ hideOnChat = false }) {
             </div>
           )}
         </li>
-
-        {/* Logout */}
-        {/* <li onClick={handleLogout} title="Logout">
-          <i className="bx bx-log-out"></i>
-        </li> */}
       </ul>
     </div>
   );

@@ -6,7 +6,7 @@ function Layout() {
     const location = useLocation();
     
     // Pages where Navbar should NOT appear
-    const hideNavbarPages = ['/status', '/profile', '/loading'];
+    const hideNavbarPages = [ '/profile', '/loading'];
     const hideNavbar = hideNavbarPages.includes(location.pathname);
 
     return (

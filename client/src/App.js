@@ -9,11 +9,24 @@ import Groups from './pages/Groups';
 import Loading from './pages/Loading';
 import RootLayout from './layout/Layout';
 import Settings from './pages/Settings';
+import AdminDashboard from './pages/AdminDashboard'; // ✅ NEW
+import NotificationsPage from './pages/NotificationsPage';
 
 // ✅ Check token fresh every time a route renders
 const ProtectedRoute = ({ children }) => {
     const token = localStorage.getItem('token');
     return token ? children : <Navigate to="/login" />;
+};
+
+// ✅ NEW: Only lets the request through if BOTH logged in AND role is admin
+const AdminRoute = ({ children }) => {
+    const token = localStorage.getItem('token');
+    if (!token) return <Navigate to="/login" />;
+
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (user.role !== 'admin') return <Navigate to="/home" />;
+
+    return children;
 };
 
 function App() {
@@ -50,6 +63,15 @@ function App() {
                     <Route
                         path="settings"
                         element={<ProtectedRoute><Settings /></ProtectedRoute>}
+                    />
+                    {/* ✅ NEW: Admin dashboard — only reachable if role === 'admin' */}
+                    <Route
+                        path="admin"
+                        element={<AdminRoute><AdminDashboard /></AdminRoute>}
+                    />
+                    <Route
+                        path="notifications"
+                        element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>}
                     />
                 </Route>
             </Route>

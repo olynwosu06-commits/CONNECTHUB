@@ -1,5 +1,6 @@
 const FriendRequest = require('../models/FriendRequestModel');
 const User = require('../models/UserModel');
+const { createNotification } = require('./notificationController');
 
 // Send a friend request
 const sendFriendRequest = async (req, res) => {
@@ -16,7 +17,6 @@ const sendFriendRequest = async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
 
-        // Check if a request already exists in either direction
         const existing = await FriendRequest.findOne({
             $or: [
                 { sender: senderId, receiver: receiverId },
@@ -29,6 +29,16 @@ const sendFriendRequest = async (req, res) => {
         }
 
         const request = await FriendRequest.create({ sender: senderId, receiver: receiverId });
+
+        // ✅ Notify the receiver
+        const senderUser = await User.findById(senderId).select('name');
+        await createNotification({
+            recipient: receiverId,
+            type: 'friend_request',
+            message: `${senderUser.name} sent you a friend request`,
+            fromUser: senderId
+        });
+
         res.status(201).json({ message: "Friend request sent", request });
 
     } catch (error) {
@@ -59,6 +69,15 @@ const acceptFriendRequest = async (req, res) => {
         request.status = 'accepted';
         await request.save();
 
+        // ✅ Notify the original sender that their request was accepted
+        const accepterUser = await User.findById(userId).select('name');
+        await createNotification({
+            recipient: request.sender,
+            type: 'friend_accepted',
+            message: `${accepterUser.name} accepted your friend request`,
+            fromUser: userId
+        });
+
         res.status(200).json({ message: "Friend request accepted", request });
 
     } catch (error) {
@@ -84,6 +103,15 @@ const rejectFriendRequest = async (req, res) => {
 
         request.status = 'rejected';
         await request.save();
+
+        // ✅ Notify the original sender that their request was declined
+        const declinerUser = await User.findById(userId).select('name');
+        await createNotification({
+            recipient: request.sender,
+            type: 'friend_declined',
+            message: `${declinerUser.name} declined your friend request`,
+            fromUser: userId
+        });
 
         res.status(200).json({ message: "Friend request rejected" });
 
@@ -119,7 +147,6 @@ const getFriends = async (req, res) => {
             $or: [{ sender: userId }, { receiver: userId }]
         }).populate('sender receiver', 'name email avatar online lastSeen');
 
-        // Normalize so we return the OTHER person, not sender/receiver structure
         const friends = requests.map(r => {
             const friend = r.sender._id.toString() === userId ? r.receiver : r.sender;
             return friend;
@@ -132,13 +159,12 @@ const getFriends = async (req, res) => {
     }
 };
 
-// ✅ NEW: Remove/unfriend an accepted friend
+// Remove/unfriend an accepted friend
 const removeFriend = async (req, res) => {
     try {
         const userId = req.user.id;
         const { friendId } = req.params;
 
-        // Find the accepted FriendRequest doc linking these two users, in either direction
         const request = await FriendRequest.findOneAndDelete({
             status: 'accepted',
             $or: [
@@ -151,6 +177,15 @@ const removeFriend = async (req, res) => {
             return res.status(404).json({ message: "Friendship not found" });
         }
 
+        // ✅ Notify the person who got removed
+        const removerUser = await User.findById(userId).select('name');
+        await createNotification({
+            recipient: friendId,
+            type: 'friend_removed',
+            message: `${removerUser.name} removed you as a friend`,
+            fromUser: userId
+        });
+
         res.status(200).json({ message: "Friend removed" });
 
     } catch (error) {
@@ -158,7 +193,7 @@ const removeFriend = async (req, res) => {
     }
 };
 
-// Get list of all users EXCLUDING self, existing friends, and pending requests (for "Add Friend" search)
+// Get list of all users EXCLUDING self, existing friends, pending requests, and admins
 const getDiscoverableUsers = async (req, res) => {
     try {
         const userId = req.user.id;
@@ -172,7 +207,10 @@ const getDiscoverableUsers = async (req, res) => {
         );
         excludedIds.push(userId);
 
-        const users = await User.find({ _id: { $nin: excludedIds } }).select('-password');
+        const users = await User.find({
+            _id: { $nin: excludedIds },
+            role: { $ne: 'admin' }
+        }).select('-password');
         res.status(200).json(users);
 
     } catch (error) {

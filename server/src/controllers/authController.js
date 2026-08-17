@@ -48,7 +48,8 @@ const loginUser = async (req, res) => {
             email: UserExists.email,
             avatar: UserExists.avatar,
             bio: UserExists.bio,
-            online: UserExists.online
+            online: UserExists.online,
+            role: UserExists.role // ✅ NEW: frontend needs this to show/hide admin access
         };
 
         res.status(200).json({ message: "User successfully logged-in", token, user });
@@ -82,10 +83,6 @@ const updateProfile = async (req, res) => {
     try {
         const { name, bio, avatar } = req.body;
 
-        console.log("=== UPDATE PROFILE HIT ===");
-        console.log("User ID:", req.user.id);
-        console.log("Received body:", { name, bio, avatar: avatar ? avatar.substring(0, 50) + "..." : null });
-
         const user = await UserModel.findById(req.user.id);
 
         if (!user) {
@@ -98,8 +95,6 @@ const updateProfile = async (req, res) => {
 
         const updatedUser = await user.save();
 
-        console.log("Avatar after save:", updatedUser.avatar ? "SAVED ✓" : "EMPTY ✗");
-
         res.status(200).json({
             message: "Profile updated",
             user: {
@@ -108,7 +103,8 @@ const updateProfile = async (req, res) => {
                 email: updatedUser.email,
                 bio: updatedUser.bio,
                 avatar: updatedUser.avatar,
-                online: updatedUser.online
+                online: updatedUser.online,
+                role: updatedUser.role // ✅ NEW: keep role present after profile edits too
             }
         });
     } catch (error) {
