@@ -26,6 +26,7 @@ const getMessages = async (req, res) => {
                 edited: msg.edited || false,
                 audio: msg.deletedForEveryone ? '' : msg.audio,
                 deletedForEveryone: msg.deletedForEveryone,
+                createdAt: msg.createdAt,
                 time: new Date(msg.createdAt).toLocaleTimeString(),
                 date: msg.createdAt, // ✅ NEW — raw date for building "Today"/"Yesterday" dividers
                 read: msg.read,

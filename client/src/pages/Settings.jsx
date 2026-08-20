@@ -167,12 +167,12 @@ function Settings() {
           <section className="settings-profile-card">
             <div className="settings-profile-main">
               <div className="settings-avatar">
-                {user.profilePicture ? (
-                  <img src={user.profilePicture} alt={userName} />
-                ) : (
-                  <span>{userInitial}</span>
-                )}
-              </div>
+                  {user.avatar ? (
+                      <img src={user.avatar} alt={userName} />
+                  ) : (
+                      <span>{userInitial}</span>
+                  )}
+                </div>
 
               <div className="settings-profile-info">
                 <div className="profile-name-row">

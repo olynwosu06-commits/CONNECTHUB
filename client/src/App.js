@@ -11,6 +11,8 @@ import RootLayout from './layout/Layout';
 import Settings from './pages/Settings';
 import AdminDashboard from './pages/AdminDashboard'; // ✅ NEW
 import NotificationsPage from './pages/NotificationsPage';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 // ✅ Check token fresh every time a route renders
 const ProtectedRoute = ({ children }) => {
@@ -73,6 +75,9 @@ function App() {
                         path="notifications"
                         element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>}
                     />
+                    <Route path="forgot-password" element={<ForgotPassword />} />
+                    <Route path="reset-password/:token" element={<ResetPassword />} />
+
                 </Route>
             </Route>
         )

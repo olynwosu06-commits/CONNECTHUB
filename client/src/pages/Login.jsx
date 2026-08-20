@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { API_BASE_URL } from '../config';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link} from 'react-router-dom';
 import '../styles/Login.css';
 
 function Login() {
@@ -52,10 +52,10 @@ function Login() {
       <section className="login-left">
         <div className="left-content">
           <div className="brand">
-            <img
+            {/* <img
               src="https://res.cloudinary.com/daaiil1ah/image/upload/v1784995479/free-whatsapp-logo-icon-4456-thumb_cvjd7y.png"
               alt="ConnectHub"
-            />
+            /> */}
             <div>
               <h1>ConnectHub</h1>
               <p>Real-time conversations</p>
@@ -110,7 +110,7 @@ function Login() {
             <div className="form-group">
               <div className="label-row">
                 <label>Password</label>
-                <a href="#">Forgot password?</a>
+                <Link to="/forgot-password">Forgot Password?</Link>  {/* ← Changed from <a> to <Link> */}
               </div>
               <input
                 type="password"
@@ -141,7 +141,7 @@ function Login() {
           </button>
 
           <p className="signup-link">
-            Don’t have an account? <a href="/register">Create one</a>
+            Don't have an account? <a href="/register">Create one</a>
           </p>
         </div>
       </section>

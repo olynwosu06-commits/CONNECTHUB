@@ -1,6 +1,7 @@
 const FriendRequest = require('../models/FriendRequestModel');
 const User = require('../models/UserModel');
 const { createNotification } = require('./notificationController');
+const Message = require('../models/MessageModel');
 
 // Send a friend request
 const sendFriendRequest = async (req, res) => {
@@ -147,9 +148,37 @@ const getFriends = async (req, res) => {
             $or: [{ sender: userId }, { receiver: userId }]
         }).populate('sender receiver', 'name email avatar online lastSeen');
 
-        const friends = requests.map(r => {
+        const friends = await Promise.all(requests.map(async (r) => {
             const friend = r.sender._id.toString() === userId ? r.receiver : r.sender;
-            return friend;
+
+            // ✅ Look up the actual most recent message between these two users
+            const lastMsg = await Message.findOne({
+                $or: [
+                    { sender: userId, receiver: friend._id },
+                    { sender: friend._id, receiver: userId }
+                ]
+            }).sort({ createdAt: -1 });
+
+            let lastMessage = '';
+            if (lastMsg) {
+                if (lastMsg.deletedForEveryone) lastMessage = 'This message was deleted';
+                else if (lastMsg.audio) lastMessage = '🎤 Voice note';
+                else if (lastMsg.image) lastMessage = '📷 Photo';
+                else lastMessage = lastMsg.text;
+            }
+
+            return {
+                ...friend.toObject(),
+                lastMessage,
+                lastMessageTime: lastMsg ? lastMsg.createdAt : null
+            };
+        }));
+
+        // ✅ Bonus: sort so friends you've messaged most recently appear at the top
+        friends.sort((a, b) => {
+            if (!a.lastMessageTime) return 1;
+            if (!b.lastMessageTime) return -1;
+            return new Date(b.lastMessageTime) - new Date(a.lastMessageTime);
         });
 
         res.status(200).json(friends);

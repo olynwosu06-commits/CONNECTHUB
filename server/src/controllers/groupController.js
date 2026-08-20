@@ -75,6 +75,7 @@ const getGroupMessages = async (req, res) => {
             type: msg.type || 'text',
             edited: msg.edited || false,
             time: new Date(msg.createdAt).toLocaleTimeString(),
+            createdAt: msg.createdAt,
             deletedForEveryone: msg.deletedForEveryone
         }));
 

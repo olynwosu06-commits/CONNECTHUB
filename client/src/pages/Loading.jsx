@@ -35,10 +35,10 @@ function Loading() {
       <div className="loading-card">
         {/* Brand */}
         <div className="loading-brand">
-          <img
+          {/* <img
             src="https://res.cloudinary.com/daaiil1ah/image/upload/v1784995479/free-whatsapp-logo-icon-4456-thumb_cvjd7y.png"
             alt="ConnectHub"
-          />
+          /> */}
           <h1>ConnectHub</h1>
         </div>
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import axios from 'axios';
 import { API_BASE_URL } from '../config';
 import '../components/Navbar.css';
@@ -151,6 +151,10 @@ function Navbar({ hideOnChat = false }) {
                   <i className="bx bx-log-out"></i>
                   <span>Logout</span>
                 </li>
+                              <div className="label-row">
+                <label>Password</label>
+                <Link to="/forgot-password">Forgot Password?</Link>  {/* ← Changed from <a> to <Link> */}
+              </div>
               </ul>
             </div>
           )}

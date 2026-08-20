@@ -10,7 +10,7 @@ import { API_BASE_URL } from '../config';
 // ============================================================
 const MessageTicks = ({ senderId, userId, delivered, read }) => {
   const readReceiptsEnabled = localStorage.getItem('readReceipts') !== 'false';
-  if (senderId !== userId || !readReceiptsEnabled) return null;
+  if (String(senderId) !== String(userId) || !readReceiptsEnabled) return null;
   if (read) return <span className="hm-ticks hm-ticks-read">✓✓</span>;
   if (delivered) return <span className="hm-ticks hm-ticks-delivered">✓✓</span>;
   return <span className="hm-ticks">✓</span>;
@@ -55,11 +55,9 @@ function Home() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const chatFileInputRef = useRef(null);
   const [unreadCounts, setUnreadCounts] = useState({});
-  const [totalUnread, setTotalUnread] = useState(0); // For home icon dot
-  
-  // ============================================================
-  // VOICE RECORDING STATES
-  // ============================================================
+  const [totalUnread, setTotalUnread] = useState(0);
+
+  // Voice recording
   const [isRecording, setIsRecording] = useState(false);
   const [recordSeconds, setRecordSeconds] = useState(0);
   const mediaRecorderRef = useRef(null);
@@ -68,19 +66,24 @@ function Home() {
   const recordTimerRef = useRef(null);
   const MAX_RECORD_SECONDS = 300;
 
-  // Profile editing states
+  // Profile
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [profileName, setProfileName] = useState('');
   const [profileAvatar, setProfileAvatar] = useState('');
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const avatarInputRef = useRef(null);
 
-  // New states
+  // Group & edit
   const [showGroupInfo, setShowGroupInfo] = useState(false);
   const [showAddMembers, setShowAddMembers] = useState(false);
   const [selectedToAdd, setSelectedToAdd] = useState([]);
   const [editingMessageId, setEditingMessageId] = useState(null);
   const [editText, setEditText] = useState('');
+  const [showInviteDot, setShowInviteDot] = useState(false);
+  const [editGroupName, setEditGroupName] = useState('');
+  const [editGroupAvatar, setEditGroupAvatar] = useState('');
+  const [uploadingGroupAvatar, setUploadingGroupAvatar] = useState(false);
+  const groupAvatarInputRef = useRef(null);
 
   const messagesEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
@@ -91,8 +94,83 @@ function Home() {
   const token = localStorage.getItem('token');
   const authHeaders = { headers: { Authorization: `Bearer ${token}` } };
 
+
+  const formatLastSeen = (dateStr) => {
+    if (!dateStr) return 'Offline';
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return 'Offline';
+
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const seenDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const diffDays = Math.floor((today - seenDate) / (1000 * 60 * 60 * 24));
+
+    const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    if (diffDays === 0) return `Last seen today at ${timeStr}`;
+    if (diffDays === 1) return `Last seen yesterday at ${timeStr}`;
+    if (diffDays < 7) {
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        return `Last seen ${days[date.getDay()]} at ${timeStr}`;
+    }
+    return `Last seen ${date.toLocaleDateString()}`;
+};
+
   // ============================================================
-  // PROFILE FUNCTIONS
+  // SAFE TIME FORMATTER (NO MORE Invalid Date)
+  // ============================================================
+  const formatMessageTime = (timestamp) => {
+    if (!timestamp) return '';
+
+    const date = new Date(timestamp);
+    if (isNaN(date.getTime())) return '';
+
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const msgDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const diffDays = Math.floor((today - msgDate) / (1000 * 60 * 60 * 24));
+
+    const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    if (diffDays === 0) return timeStr;
+    if (diffDays === 1) return `Yesterday ${timeStr}`;
+    if (diffDays < 7) {
+      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      return `${days[date.getDay()]} ${timeStr}`;
+    }
+    return `${date.toLocaleDateString()} ${timeStr}`;
+  };
+
+  const groupMessagesByDate = (msgs) => {
+    const groups = {};
+    msgs.forEach(msg => {
+      const date = new Date(msg.createdAt || Date.now());
+      if (isNaN(date.getTime())) return;
+      const key = new Date(date.getFullYear(), date.getMonth(), date.getDate()).toISOString();
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(msg);
+    });
+    return groups;
+  };
+
+  const getDateLabel = (dateStr) => {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const msgDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const diffDays = Math.floor((today - msgDate) / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) {
+      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      return days[date.getDay()];
+    }
+    return date.toLocaleDateString();
+  };
+
+  // ============================================================
+  // PROFILE
   // ============================================================
   const openProfileModal = () => {
     setProfileName(user.name || '');
@@ -102,20 +180,13 @@ function Home() {
 
   const updateProfile = async () => {
     try {
-      const res = await axios.put(
-        `${API_BASE_URL}/api/users/profile`,
+      await axios.put(
+        `${API_BASE_URL}/api/auth/profile`,
         { name: profileName, avatar: profileAvatar },
         authHeaders
       );
-      
-      // Update local storage
       const updatedUser = { ...user, name: profileName, avatar: profileAvatar };
       localStorage.setItem('user', JSON.stringify(updatedUser));
-      
-      // Update state
-      setProfileAvatar(profileAvatar);
-      setProfileName(profileName);
-      
       showNotification('Profile updated successfully!', 'success');
       setShowProfileModal(false);
     } catch (error) {
@@ -154,63 +225,7 @@ function Home() {
     }
   };
 
-  // ============================================================
-  // MESSAGE DATE HELPER
-  // ============================================================
-  const formatMessageTime = (timestamp) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const msgDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    
-    const diffDays = Math.floor((today - msgDate) / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 0) {
-      // Today - show time only
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    } else if (diffDays === 1) {
-      return `Yesterday ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-    } else if (diffDays < 7) {
-      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-      return `${days[date.getDay()]} ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-    } else {
-      return `${date.toLocaleDateString()} ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-    }
-  };
-
-  // ============================================================
-  // GROUP MESSAGES WITH DATE
-  // ============================================================
-  const groupMessagesByDate = (messages) => {
-    const groups = {};
-    messages.forEach(msg => {
-      const date = new Date(msg.createdAt || Date.now());
-      const key = new Date(date.getFullYear(), date.getMonth(), date.getDate()).toISOString();
-      if (!groups[key]) groups[key] = [];
-      groups[key].push(msg);
-    });
-    return groups;
-  };
-
-  const getDateLabel = (dateStr) => {
-    const date = new Date(dateStr);
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const msgDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    const diffDays = Math.floor((today - msgDate) / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 7) {
-      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-      return days[date.getDay()];
-    }
-    return date.toLocaleDateString();
-  };
-
-  // ============================================================
   // Mobile navbar hide
-  // ============================================================
   useEffect(() => {
     const navbar = document.querySelector('.side-bar');
     if (!navbar) return;
@@ -308,43 +323,31 @@ function Home() {
     if (tab === 'discover') fetchDiscoverUsers();
     if (tab === 'invites') {
       fetchPendingRequests();
-      // Reset invite notification dot when opening invites
       setShowInviteDot(false);
     }
     if (tab === 'spaces') fetchGroups();
   };
 
-  // ============================================================
-  // INVITE NOTIFICATION DOT
-  // ============================================================
-  const [showInviteDot, setShowInviteDot] = useState(false);
-
-  // Check for pending invites periodically
+  // Invite notification
   useEffect(() => {
     if (activeTab !== 'invites') {
       const checkPending = async () => {
         try {
           const res = await axios.get(`${API_BASE_URL}/api/friends/pending`, authHeaders);
-          if (res.data.length > 0) {
-            setShowInviteDot(true);
-          }
+          if (res.data.length > 0) setShowInviteDot(true);
         } catch (error) {
           console.error('Error checking invites:', error);
         }
       };
       checkPending();
-      
-      // Also check via socket for real-time updates
-      const handleFriendRequest = (data) => {
+
+      const handleFriendRequest = () => {
         setShowInviteDot(true);
         showNotification('New friend request received!', 'info');
       };
-      
+
       socket.on('friend-request', handleFriendRequest);
-      
-      return () => {
-        socket.off('friend-request', handleFriendRequest);
-      };
+      return () => socket.off('friend-request', handleFriendRequest);
     }
   }, [activeTab]);
 
@@ -412,7 +415,13 @@ function Home() {
     socket.emit('mark-read', { senderId: friend._id });
     try {
       const res = await axios.get(`${API_BASE_URL}/api/messages/${friend._id}`, authHeaders);
-      setMessages(res.data);
+      // Normalize messages so they always have proper createdAt
+      const normalized = res.data.map(m => ({
+        ...m,
+        senderId: m.senderId || m.sender,
+        createdAt: m.createdAt || m.date || m.timestamp || new Date().toISOString()
+      }));
+      setMessages(normalized);
     } catch (error) {
       console.error('Error fetching messages:', error);
     }
@@ -425,7 +434,12 @@ function Home() {
     setIsMobileChatOpen(true);
     try {
       const res = await axios.get(`${API_BASE_URL}/api/groups/${group._id}/messages`, authHeaders);
-      setGroupMessages(res.data);
+      const normalized = res.data.map(m => ({
+        ...m,
+        senderId: m.senderId || m.sender,
+        createdAt: m.createdAt || m.date || m.timestamp || new Date().toISOString()
+      }));
+      setGroupMessages(normalized);
       socket.emit('join-group', group._id);
     } catch (error) {
       console.error('Error fetching group messages:', error);
@@ -455,7 +469,6 @@ function Home() {
     }
   };
 
-  // Helpers
   const isGroupAdmin = (group) => {
     if (!group) return false;
     return group.admin?._id === user._id || group.admin === user._id;
@@ -510,54 +523,88 @@ function Home() {
 
   const updateGroupName = async (newName) => {
     if (!selectedGroup || !newName.trim()) return;
-
     try {
       const res = await axios.put(
         `${API_BASE_URL}/api/groups/${selectedGroup._id}`,
         { name: newName.trim() },
         authHeaders
       );
-
       const updatedGroup = res.data.group;
       setSelectedGroup(updatedGroup);
-      setGroups(prev =>
-        prev.map(g => (g._id === selectedGroup._id ? updatedGroup : g))
-      );
+      setGroups(prev => prev.map(g => (g._id === selectedGroup._id ? updatedGroup : g)));
       showNotification('Space name updated', 'success');
     } catch (err) {
       showNotification(err.response?.data?.message || 'Failed to update space', 'error');
     }
   };
 
+  // Group Info
+  const openGroupInfo = () => {
+    setEditGroupName(selectedGroup.name || '');
+    setEditGroupAvatar(selectedGroup.avatar || '');
+    setShowGroupInfo(true);
+  };
+
+  const uploadGroupAvatarFile = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      if (!file.type.startsWith('image/')) { showNotification('Please select an image', 'error'); return; }
+      if (file.size > 5 * 1024 * 1024) { showNotification('Image must be under 5MB', 'error'); return; }
+
+      setUploadingGroupAvatar(true);
+      try {
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('upload_preset', CLOUDINARY_PRESET);
+          const res = await axios.post(
+              `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`,
+              formData
+          );
+          setEditGroupAvatar(res.data.secure_url);
+      } catch {
+          showNotification('Avatar upload failed', 'error');
+      } finally {
+          setUploadingGroupAvatar(false);
+          e.target.value = '';
+      }
+  };
+
+  const saveGroupChanges = async () => {
+      if (!selectedGroup || !editGroupName.trim()) return;
+      try {
+          const res = await axios.put(
+              `${API_BASE_URL}/api/groups/${selectedGroup._id}`,
+              { name: editGroupName.trim(), avatar: editGroupAvatar },
+              authHeaders
+          );
+          const updatedGroup = res.data.group;
+          setSelectedGroup(updatedGroup);
+          setGroups(prev => prev.map(g => (g._id === selectedGroup._id ? updatedGroup : g)));
+          showNotification('Space updated', 'success');
+          setShowGroupInfo(false);
+      } catch (err) {
+          showNotification(err.response?.data?.message || 'Failed to update space', 'error');
+      }
+  };
+
   const toggleMemberToAdd = (friendId) => {
     setSelectedToAdd(prev =>
-      prev.includes(friendId)
-        ? prev.filter(id => id !== friendId)
-        : [...prev, friendId]
+      prev.includes(friendId) ? prev.filter(id => id !== friendId) : [...prev, friendId]
     );
   };
 
   const addMembersToGroup = async () => {
     if (!selectedGroup || selectedToAdd.length === 0) return;
-
     try {
       const res = await axios.post(
         `${API_BASE_URL}/api/groups/${selectedGroup._id}/members`,
         { members: selectedToAdd },
         authHeaders
       );
-
       setSelectedGroup(res.data.group);
-      setGroups(prev =>
-        prev.map(g => (g._id === selectedGroup._id ? res.data.group : g))
-      );
-
-      const msgRes = await axios.get(
-        `${API_BASE_URL}/api/groups/${selectedGroup._id}/messages`,
-        authHeaders
-      );
+      setGroups(prev => prev.map(g => (g._id === selectedGroup._id ? res.data.group : g)));
+      const msgRes = await axios.get(`${API_BASE_URL}/api/groups/${selectedGroup._id}/messages`, authHeaders);
       setGroupMessages(msgRes.data);
-
       setShowAddMembers(false);
       setSelectedToAdd([]);
       showNotification('Members added', 'success');
@@ -568,41 +615,35 @@ function Home() {
 
   const removeMemberFromGroup = async (memberId) => {
     if (!selectedGroup) return;
-
     try {
       const res = await axios.delete(
         `${API_BASE_URL}/api/groups/${selectedGroup._id}/members/${memberId}`,
         authHeaders
       );
-
       setSelectedGroup(res.data.group);
-      setGroups(prev =>
-        prev.map(g => (g._id === selectedGroup._id ? res.data.group : g))
-      );
-
-      const msgRes = await axios.get(
-        `${API_BASE_URL}/api/groups/${selectedGroup._id}/messages`,
-        authHeaders
-      );
+      setGroups(prev => prev.map(g => (g._id === selectedGroup._id ? res.data.group : g)));
+      const msgRes = await axios.get(`${API_BASE_URL}/api/groups/${selectedGroup._id}/messages`, authHeaders);
       setGroupMessages(msgRes.data);
-
       showNotification('Member removed', 'success');
     } catch (err) {
       showNotification(err.response?.data?.message || 'Failed to remove member', 'error');
     }
   };
 
+  // ============================================================
+  // SEND MESSAGE (PRIVATE)
+  // ============================================================
   const sendMessage = async () => {
     if (!newMessage.trim() || !selectedChat) return;
     const sentText = newMessage.trim();
     const tempId = `temp-${Date.now()}`;
+    const now = new Date().toISOString();
 
     setMessages(prev => [...prev, {
       _id: tempId,
       senderId: user._id,
       text: sentText,
-      createdAt: new Date().toISOString(),
-      time: new Date().toLocaleTimeString(),
+      createdAt: now,
       delivered: false,
       read: false,
       isTemp: true
@@ -633,6 +674,7 @@ function Home() {
   // Audio
   const sendAudioMessage = (audioUrl) => {
     if (!selectedChat) return;
+    const now = new Date().toISOString();
 
     socket.emit('private-message', {
       receiverId: selectedChat._id,
@@ -642,14 +684,13 @@ function Home() {
     });
 
     setMessages(prev => [...prev, {
+      _id: Date.now(),
       senderId: user._id,
       text: '',
       audio: audioUrl,
-      createdAt: new Date().toISOString(),
-      time: new Date().toLocaleTimeString(),
+      createdAt: now,
       delivered: false,
-      read: false,
-      _id: Date.now()
+      read: false
     }]);
 
     setFriends(prev => {
@@ -681,38 +722,26 @@ function Home() {
     }
   };
 
-  // ============================================================
-  // VOICE RECORDING FUNCTIONS
-  // ============================================================
+  // Voice recording
   const startRecording = async (e) => {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
     }
-
-    if (isRecording) return;
-
-    if (!selectedChat) {
-      showNotification('Select a chat first', 'error');
+    if (isRecording || !selectedChat) {
+      if (!selectedChat) showNotification('Select a chat first', 'error');
       return;
     }
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true
-        } 
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
       });
-      
+
       recordStreamRef.current = stream;
       audioChunksRef.current = [];
 
-      const recorder = new MediaRecorder(stream, {
-        mimeType: 'audio/webm;codecs=opus'
-      });
-      
+      const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm;codecs=opus' });
       mediaRecorderRef.current = recorder;
 
       recorder.ondataavailable = (e) => {
@@ -725,12 +754,8 @@ function Home() {
         clearInterval(recordTimerRef.current);
         setIsRecording(false);
         setRecordSeconds(0);
-        
-        if (blob.size > 500) {
-          uploadVoiceNote(blob);
-        } else {
-          showNotification('Recording too short', 'info');
-        }
+        if (blob.size > 500) uploadVoiceNote(blob);
+        else showNotification('Recording too short', 'info');
       };
 
       recorder.start(100);
@@ -746,7 +771,6 @@ function Home() {
           return prev + 1;
         });
       }, 1000);
-
     } catch (err) {
       console.error('Microphone error:', err);
       showNotification('Microphone access denied or unavailable', 'error');
@@ -758,7 +782,6 @@ function Home() {
       e.preventDefault();
       e.stopPropagation();
     }
-    
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
       mediaRecorderRef.current.stop();
     }
@@ -769,7 +792,6 @@ function Home() {
       e.preventDefault();
       e.stopPropagation();
     }
-    
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
       audioChunksRef.current = [];
       mediaRecorderRef.current.stop();
@@ -787,6 +809,8 @@ function Home() {
 
   const sendImageMessage = (imageUrl) => {
     if (!selectedChat) return;
+    const now = new Date().toISOString();
+
     socket.emit('private-message', {
       receiverId: selectedChat._id,
       text: '',
@@ -795,14 +819,13 @@ function Home() {
     });
 
     setMessages(prev => [...prev, {
+      _id: Date.now(),
       senderId: user._id,
       text: '',
       image: imageUrl,
-      createdAt: new Date().toISOString(),
-      time: new Date().toLocaleTimeString(),
+      createdAt: now,
       delivered: false,
-      read: false,
-      _id: Date.now()
+      read: false
     }]);
 
     setFriends(prev => {
@@ -821,8 +844,14 @@ function Home() {
   const uploadChatImage = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (!file.type.startsWith('image/')) { showNotification('Please select an image', 'error'); return; }
-    if (file.size > 5 * 1024 * 1024) { showNotification('Image must be under 5MB', 'error'); return; }
+    if (!file.type.startsWith('image/')) {
+      showNotification('Please select an image', 'error');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      showNotification('Image must be under 5MB', 'error');
+      return;
+    }
 
     setUploadingImage(true);
     try {
@@ -842,18 +871,19 @@ function Home() {
     }
   };
 
+  // Group message
   const sendGroupMessage = async () => {
     if (!newMessage.trim() || !selectedGroup) return;
     const sentText = newMessage.trim();
     const tempId = `temp-${Date.now()}`;
+    const now = new Date().toISOString();
 
     setGroupMessages(prev => [...prev, {
       _id: tempId,
       senderId: user._id,
       senderName: 'You',
       text: sentText,
-      createdAt: new Date().toISOString(),
-      time: new Date().toLocaleTimeString(),
+      createdAt: now,
       isTemp: true
     }]);
 
@@ -941,17 +971,18 @@ function Home() {
   // Socket events
   useEffect(() => {
     const handleNewMessage = (message) => {
-      if (message.sender === user._id) return;
+      if (String(message.sender) === String(user._id)) return;
 
-      if (selectedChat && message.sender === selectedChat._id) {
+      const createdAt = message.createdAt || new Date().toISOString();
+
+      if (selectedChat && String(message.sender) === String(selectedChat._id)) {
         setMessages(prev => [...prev, {
           _id: message._id,
           senderId: message.sender,
           text: message.text,
           image: message.image,
           audio: message.audio,
-          createdAt: message.createdAt || new Date().toISOString(),
-          time: new Date().toLocaleTimeString(),
+          createdAt,
           delivered: true,
           read: false
         }]);
@@ -961,17 +992,16 @@ function Home() {
           ...prev,
           [message.sender]: (prev[message.sender] || 0) + 1
         }));
-        // Update total unread count for home icon dot
         setTotalUnread(prev => prev + 1);
       }
 
       setFriends(prev => {
         const updated = prev.map(f =>
-          f._id === message.sender
+          String(f._id) === String(message.sender)
             ? { ...f, lastMessage: message.audio ? '🎤 Voice note' : (message.image ? '📷 Photo' : (message.text || 'Media')), time: 'Just now' }
             : f
         );
-        const idx = updated.findIndex(f => f._id === message.sender);
+        const idx = updated.findIndex(f => String(f._id) === String(message.sender));
         if (idx === -1) return updated;
         const [chat] = updated.splice(idx, 1);
         return [chat, ...updated];
@@ -979,7 +1009,9 @@ function Home() {
     };
 
     const handleNewGroupMessage = (message) => {
-      if (message.sender === user._id) {
+      const createdAt = message.createdAt || new Date().toISOString();
+
+      if (String(message.sender) === String(user._id)) {
         setGroupMessages(prev => {
           const withoutTemp = prev.filter(m => !m.isTemp);
           return [...withoutTemp, {
@@ -989,14 +1021,13 @@ function Home() {
             text: message.text,
             image: message.image,
             type: message.type || 'text',
-            createdAt: message.createdAt || new Date().toISOString(),
-            time: new Date(message.createdAt || Date.now()).toLocaleTimeString()
+            createdAt
           }];
         });
         return;
       }
 
-      if (selectedGroup && message.groupId === selectedGroup._id) {
+      if (selectedGroup && String(message.groupId) === String(selectedGroup._id)) {
         setGroupMessages(prev => [...prev, {
           _id: message._id,
           senderId: message.sender,
@@ -1004,15 +1035,14 @@ function Home() {
           text: message.text,
           image: message.image,
           type: message.type || 'text',
-          createdAt: message.createdAt || new Date().toISOString(),
-          time: new Date().toLocaleTimeString()
+          createdAt
         }]);
       }
     };
 
     const handleTypingEvent = ({ userId, isTyping }) => {
       if (!typingEnabled) return;
-      if (selectedChat && userId === selectedChat._id) {
+      if (selectedChat && String(userId) === String(selectedChat._id)) {
         if (isTyping) {
           clearTimeout(typingClearRef.current);
           setTypingUser(selectedChat.name);
@@ -1025,14 +1055,15 @@ function Home() {
     };
 
     const handleMessagesRead = ({ by }) => {
-      if (selectedChat && by === selectedChat._id) {
+      if (selectedChat && String(by) === String(selectedChat._id)) {
         setMessages(prev => prev.map(msg =>
-          msg.senderId === user._id ? { ...msg, read: true, delivered: true } : msg
+          String(msg.senderId) === String(user._id) ? { ...msg, read: true, delivered: true } : msg
         ));
       }
     };
 
     const handleMessageSent = (message) => {
+      const createdAt = message.createdAt || new Date().toISOString();
       setMessages(prev => {
         const withoutTemp = prev.filter(m => !m.isTemp);
         return [...withoutTemp, {
@@ -1041,8 +1072,7 @@ function Home() {
           text: message.text,
           image: message.image,
           audio: message.audio,
-          createdAt: message.createdAt || new Date().toISOString(),
-          time: new Date(message.createdAt || Date.now()).toLocaleTimeString(),
+          createdAt,
           delivered: message.delivered || false,
           read: message.read || false
         }];
@@ -1076,7 +1106,6 @@ function Home() {
     f.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Calculate total unread messages
   useEffect(() => {
     const total = Object.values(unreadCounts).reduce((a, b) => a + b, 0);
     setTotalUnread(total);
@@ -1100,13 +1129,8 @@ function Home() {
           <div className="hm-sidebar-top">
             <div className="hm-brand">
               <span>ConnectHub</span>
-              {/* Home icon with notification dot */}
               <div className="hm-brand-icons">
-                <button 
-                  className="hm-profile-btn" 
-                  onClick={openProfileModal}
-                  title="Edit Profile"
-                >
+                <button className="hm-profile-btn" onClick={openProfileModal} title="Edit Profile">
                   <span className="hm-profile-icon">👤</span>
                 </button>
                 {totalUnread > 0 && (
@@ -1140,9 +1164,7 @@ function Home() {
             <button className={`hm-nav-item ${activeTab === 'invites' ? 'active' : ''}`} onClick={() => handleTabSwitch('invites')}>
               <span className="hm-nav-icon">✉️</span>
               <span>Invites</span>
-              {showInviteDot && (
-                <span className="hm-nav-dot"></span>
-              )}
+              {showInviteDot && <span className="hm-nav-dot"></span>}
               {pendingRequests.length > 0 && (
                 <span className="hm-nav-badge">{pendingRequests.length}</span>
               )}
@@ -1227,20 +1249,8 @@ function Home() {
                       <div className="hm-item-preview">{req.sender?.email}</div>
                     </div>
                     <div className="hm-invite-actions">
-                      <button 
-                        className="hm-accept-btn" 
-                        onClick={() => acceptRequest(req._id)}
-                        title="Accept"
-                      >
-                        ✓
-                      </button>
-                      <button 
-                        className="hm-decline-btn" 
-                        onClick={() => rejectRequest(req._id)}
-                        title="Decline"
-                      >
-                        ✕
-                      </button>
+                      <button className="hm-accept-btn" onClick={() => acceptRequest(req._id)} title="Accept">✓</button>
+                      <button className="hm-decline-btn" onClick={() => rejectRequest(req._id)} title="Decline">✕</button>
                     </div>
                   </div>
                 ))
@@ -1291,73 +1301,76 @@ function Home() {
                   <div className="hm-chat-name">{selectedGroup.name}</div>
                   <div className="hm-chat-sub">{selectedGroup.members?.length} members</div>
                 </div>
-                <button className="hm-more" onClick={() => setShowGroupInfo(true)} title="Space Info">
+                <button className="hm-more" onClick={openGroupInfo} title="Space Info">
                   <i className="bx bx-info-circle"></i>
                 </button>
               </div>
 
               <div className="hm-messages">
                 {Object.entries(groupMessagesByDate(groupMessages)).map(([dateKey, msgs]) => (
-                  <div key={dateKey}>
+                  <div key={dateKey} className="hm-date-group">
                     <div className="hm-date-divider">
                       <span>{getDateLabel(dateKey)}</span>
                     </div>
-                    {msgs.map((msg) => (
-                      <div key={msg._id || msg.time} className={`hm-msg ${msg.senderId === user._id ? 'sent' : 'received'}`}>
-                        <div className="hm-bubble">
-                          {msg.type === 'system' ? (
-                            <div className="hm-system-msg">{msg.text}</div>
-                          ) : (
-                            <>
-                              {msg.senderId !== user._id && <div className="hm-sender">{msg.senderName}</div>}
+                    {msgs.map((msg) => {
+                      const isMine = String(msg.senderId) === String(user._id);
+                      return (
+                        <div key={msg._id || msg.createdAt} className={`hm-msg ${isMine ? 'sent' : 'received'}`}>
+                          <div className="hm-bubble">
+                            {msg.type === 'system' ? (
+                              <div className="hm-system-msg">{msg.text}</div>
+                            ) : (
+                              <>
+                                {!isMine && <div className="hm-sender">{msg.senderName}</div>}
 
-                              {editingMessageId === msg._id ? (
-                                <div className="hm-edit-box">
-                                  <input
-                                    value={editText}
-                                    onChange={(e) => setEditText(e.target.value)}
-                                    onKeyDown={(e) => e.key === 'Enter' && saveEditMessage()}
-                                    autoFocus
-                                  />
-                                  <div className="hm-edit-actions">
-                                    <button onClick={saveEditMessage}>Save</button>
-                                    <button onClick={cancelEdit}>Cancel</button>
-                                  </div>
-                                </div>
-                              ) : (
-                                <>
-                                  {msg.image && <img src={msg.image} alt="shared" className="hm-msg-image" />}
-                                  {msg.audio && ( <audio controls src={msg.audio} className='hm-msg-audio' />)}
-                                  {msg.text}
-                                  {msg.edited && <small className="hm-edited">edited</small>}
-                                </>
-                              )}
-
-                              <span className="hm-time">{formatMessageTime(msg.createdAt || msg.time)}</span>
-
-                              {msg.senderId === user._id && (
-                                <>
-                                  <button
-                                    className="hm-msg-menu-btn"
-                                    onClick={() => setOpenMsgMenu(openMsgMenu === msg._id ? null : msg._id)}
-                                  >
-                                    ⋮
-                                  </button>
-                                  {openMsgMenu === msg._id && (
-                                    <div className="hm-msg-menu">
-                                      <button onClick={() => startEditMessage(msg)}>Edit</button>
-                                      <button onClick={() => { deleteMessage(msg._id, false); setOpenMsgMenu(null); }}>
-                                        Delete for me
-                                      </button>
+                                {editingMessageId === msg._id ? (
+                                  <div className="hm-edit-box">
+                                    <input
+                                      value={editText}
+                                      onChange={(e) => setEditText(e.target.value)}
+                                      onKeyDown={(e) => e.key === 'Enter' && saveEditMessage()}
+                                      autoFocus
+                                    />
+                                    <div className="hm-edit-actions">
+                                      <button onClick={saveEditMessage}>Save</button>
+                                      <button onClick={cancelEdit}>Cancel</button>
                                     </div>
-                                  )}
-                                </>
-                              )}
-                            </>
-                          )}
+                                  </div>
+                                ) : (
+                                  <>
+                                    {msg.image && <img src={msg.image} alt="shared" className="hm-msg-image" />}
+                                    {msg.audio && <audio controls src={msg.audio} className="hm-msg-audio" />}
+                                    {msg.text}
+                                    {msg.edited && <small className="hm-edited">edited</small>}
+                                  </>
+                                )}
+
+                                <span className="hm-time">{formatMessageTime(msg.createdAt)}</span>
+
+                                {isMine && (
+                                  <>
+                                    <button
+                                      className="hm-msg-menu-btn"
+                                      onClick={() => setOpenMsgMenu(openMsgMenu === msg._id ? null : msg._id)}
+                                    >
+                                      ⋮
+                                    </button>
+                                    {openMsgMenu === msg._id && (
+                                      <div className="hm-msg-menu">
+                                        <button onClick={() => startEditMessage(msg)}>Edit</button>
+                                        <button onClick={() => { deleteMessage(msg._id, false); setOpenMsgMenu(null); }}>
+                                          Delete for me
+                                        </button>
+                                      </div>
+                                    )}
+                                  </>
+                                )}
+                              </>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ))}
                 <div ref={messagesEndRef} />
@@ -1385,8 +1398,8 @@ function Home() {
                   <div className="hm-chat-name">{selectedChat.name}</div>
                   <div className="hm-chat-sub">
                     {typingUser
-                      ? <span className="hm-typing">{typingUser} is typing…</span>
-                      : selectedChat.online ? 'Online' : 'Offline'}
+                    ? <span className="hm-typing">{typingUser} is typing…</span>
+                    : selectedChat.online ? 'Online' : formatLastSeen(selectedChat.lastSeen)}
                   </div>
                 </div>
                 <button className="hm-more" onClick={() => removeFriend(selectedChat._id)} title="Remove connection">
@@ -1396,69 +1409,72 @@ function Home() {
 
               <div className="hm-messages">
                 {Object.entries(groupMessagesByDate(messages)).map(([dateKey, msgs]) => (
-                  <div key={dateKey}>
+                  <div key={dateKey} className="hm-date-group">
                     <div className="hm-date-divider">
                       <span>{getDateLabel(dateKey)}</span>
                     </div>
-                    {msgs.map((msg) => (
-                      <div key={msg._id || msg.time} className={`hm-msg ${msg.senderId === user._id ? 'sent' : 'received'}`}>
-                        <div className="hm-bubble">
-                          {editingMessageId === msg._id ? (
-                            <div className="hm-edit-box">
-                              <input
-                                value={editText}
-                                onChange={(e) => setEditText(e.target.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && saveEditMessage()}
-                                autoFocus
-                              />
-                              <div className="hm-edit-actions">
-                                <button onClick={saveEditMessage}>Save</button>
-                                <button onClick={cancelEdit}>Cancel</button>
-                              </div>
-                            </div>
-                          ) : (
-                            <>
-                              {msg.image && <img src={msg.image} alt="shared" className="hm-msg-image" />}
-                              {msg.audio && <audio controls src={msg.audio} className="hm-msg-audio" />}
-                              {msg.text}
-                              {msg.edited && <small className="hm-edited">edited</small>}
-                            </>
-                          )}
-
-                          <span className="hm-time">
-                            <MessageTicks
-                              senderId={msg.senderId}
-                              userId={user._id}
-                              delivered={msg.delivered}
-                              read={msg.read}
-                            />
-                            {formatMessageTime(msg.createdAt || msg.time)}
-                          </span>
-
-                          {msg.senderId === user._id && !msg.deletedForEveryone && (
-                            <>
-                              <button
-                                className="hm-msg-menu-btn"
-                                onClick={() => setOpenMsgMenu(openMsgMenu === msg._id ? null : msg._id)}
-                              >
-                                ⋮
-                              </button>
-                              {openMsgMenu === msg._id && (
-                                <div className="hm-msg-menu">
-                                  <button onClick={() => startEditMessage(msg)}>Edit</button>
-                                  <button onClick={() => { deleteMessage(msg._id, false); setOpenMsgMenu(null); }}>
-                                    Delete for me
-                                  </button>
-                                  <button onClick={() => { deleteMessage(msg._id, true); setOpenMsgMenu(null); }}>
-                                    Delete for everyone
-                                  </button>
+                    {msgs.map((msg) => {
+                      const isMine = String(msg.senderId) === String(user._id);
+                      return (
+                        <div key={msg._id || msg.createdAt} className={`hm-msg ${isMine ? 'sent' : 'received'}`}>
+                          <div className="hm-bubble">
+                            {editingMessageId === msg._id ? (
+                              <div className="hm-edit-box">
+                                <input
+                                  value={editText}
+                                  onChange={(e) => setEditText(e.target.value)}
+                                  onKeyDown={(e) => e.key === 'Enter' && saveEditMessage()}
+                                  autoFocus
+                                />
+                                <div className="hm-edit-actions">
+                                  <button onClick={saveEditMessage}>Save</button>
+                                  <button onClick={cancelEdit}>Cancel</button>
                                 </div>
-                              )}
-                            </>
-                          )}
+                              </div>
+                            ) : (
+                              <>
+                                {msg.image && <img src={msg.image} alt="shared" className="hm-msg-image" />}
+                                {msg.audio && <audio controls src={msg.audio} className="hm-msg-audio" />}
+                                {msg.text}
+                                {msg.edited && <small className="hm-edited">edited</small>}
+                              </>
+                            )}
+
+                            <span className="hm-time">
+                              <MessageTicks
+                                senderId={msg.senderId}
+                                userId={user._id}
+                                delivered={msg.delivered}
+                                read={msg.read}
+                              />
+                              {formatMessageTime(msg.createdAt)}
+                            </span>
+
+                            {isMine && !msg.deletedForEveryone && (
+                              <>
+                                <button
+                                  className="hm-msg-menu-btn"
+                                  onClick={() => setOpenMsgMenu(openMsgMenu === msg._id ? null : msg._id)}
+                                >
+                                  ⋮
+                                </button>
+                                {openMsgMenu === msg._id && (
+                                  <div className="hm-msg-menu">
+                                    <button onClick={() => startEditMessage(msg)}>Edit</button>
+                                    <button onClick={() => { deleteMessage(msg._id, false); setOpenMsgMenu(null); }}>
+                                      Delete for me
+                                    </button>
+                                    <button onClick={() => { deleteMessage(msg._id, true); setOpenMsgMenu(null); }}>
+                                      Delete for everyone
+                                    </button>
+                                  </div>
+                                )}
+                              </>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ))}
                 <div ref={messagesEndRef} />
@@ -1543,9 +1559,7 @@ function Home() {
         </div>
       </div>
 
-      {/* ============================================================ */}
-      {/* PROFILE EDIT MODAL */}
-      {/* ============================================================ */}
+      {/* PROFILE MODAL */}
       {showProfileModal && (
         <div className="hm-modal-overlay" onClick={() => setShowProfileModal(false)}>
           <div className="hm-modal hm-profile-modal" onClick={(e) => e.stopPropagation()}>
@@ -1563,7 +1577,7 @@ function Home() {
                     {profileName?.charAt(0).toUpperCase() || '?'}
                   </div>
                 )}
-                <button 
+                <button
                   className="hm-profile-avatar-upload"
                   onClick={() => avatarInputRef.current.click()}
                   disabled={uploadingAvatar}
@@ -1592,12 +1606,8 @@ function Home() {
             </div>
 
             <div className="hm-modal-footer">
-              <button className="hm-cancel-btn" onClick={() => setShowProfileModal(false)}>
-                Cancel
-              </button>
-              <button className="hm-create-btn" onClick={updateProfile}>
-                Save Changes
-              </button>
+              <button className="hm-cancel-btn" onClick={() => setShowProfileModal(false)}>Cancel</button>
+              <button className="hm-create-btn" onClick={updateProfile}>Save Changes</button>
             </div>
           </div>
         </div>
@@ -1661,20 +1671,48 @@ function Home() {
             </div>
 
             <div style={{ textAlign: 'center', padding: '10px 0 20px' }}>
-              <Avatar person={selectedGroup} isGroup className="hm-avatar-group" />
-              <h2 style={{ margin: '12px 0 4px' }}>{selectedGroup.name}</h2>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
+              <div className="hm-profile-avatar-wrapper" style={{ margin: '0 auto' }}>
+                {editGroupAvatar ? (
+                  <img src={editGroupAvatar} alt="Space" className="hm-profile-avatar-img" />
+                ) : (
+                  <div className="hm-profile-avatar-placeholder">
+                    {selectedGroup.name?.charAt(0).toUpperCase() || 'S'}
+                  </div>
+                )}
+                {isGroupAdmin(selectedGroup) && (
+                  <button
+                    className="hm-profile-avatar-upload"
+                    onClick={() => groupAvatarInputRef.current.click()}
+                    disabled={uploadingGroupAvatar}
+                  >
+                    {uploadingGroupAvatar ? '⏳' : '📷'}
+                  </button>
+                )}
+                {isGroupAdmin(selectedGroup) && (
+                  <input
+                    ref={groupAvatarInputRef}
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    onChange={uploadGroupAvatarFile}
+                  />
+                )}
+              </div>
+
+              <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginTop: '12px' }}>
                 {selectedGroup.members?.length || 0} members
               </p>
 
-              {isGroupAdmin(selectedGroup) && (
+              {isGroupAdmin(selectedGroup) ? (
                 <input
                   className="hm-modal-input"
                   style={{ marginTop: '12px' }}
-                  defaultValue={selectedGroup.name}
-                  onBlur={(e) => updateGroupName(e.target.value)}
+                  value={editGroupName}
+                  onChange={(e) => setEditGroupName(e.target.value)}
                   placeholder="Space name"
                 />
+              ) : (
+                <h2 style={{ margin: '12px 0 4px' }}>{selectedGroup.name}</h2>
               )}
             </div>
 
@@ -1696,10 +1734,7 @@ function Home() {
                     </div>
 
                     {isGroupAdmin(selectedGroup) && memberId !== user._id && (
-                      <button
-                        className="hm-remove-member"
-                        onClick={() => removeMemberFromGroup(memberId)}
-                      >
+                      <button className="hm-remove-member" onClick={() => removeMemberFromGroup(memberId)}>
                         Remove
                       </button>
                     )}
@@ -1710,8 +1745,12 @@ function Home() {
 
             {isGroupAdmin(selectedGroup) && (
               <div className="hm-modal-footer">
-                <button
+                <button className="hm-create-btn" onClick={saveGroupChanges}>
+                  Save Changes
+                  </button>
+                  <button
                   className="hm-create-btn"
+                  style={{ background: 'var(--hover)', color: 'var(--text)' }}
                   onClick={() => {
                     setShowGroupInfo(false);
                     setShowAddMembers(true);

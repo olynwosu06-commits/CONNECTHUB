@@ -37,6 +37,12 @@
   --primary-soft: rgba(124, 58, 237, 0.2);
 }
 
+.hm-date-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
 /* ============================================================
    INVITE BUTTONS - SMALLER
    ============================================================ */

@@ -1,6 +1,8 @@
 const UserModel = require('../models/UserModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 
 const registerUser = async (req, res) => {
     try {
@@ -39,7 +41,7 @@ const loginUser = async (req, res) => {
         const token = jwt.sign(
             { id: UserExists._id, role: UserExists.role },
             process.env.JWT_SECRET,
-            { expiresIn: "1h" }
+            { expiresIn: "7d" }
         );
 
         const user = {
@@ -113,4 +115,87 @@ const updateProfile = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, loginUser, getUserProfile, getUsers, updateProfile };
+// Forgot Password - Send Reset Email
+const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        const user = await UserModel.findOne({ email });
+        
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        
+        // Generate reset token
+        const resetToken = crypto.randomBytes(20).toString('hex');
+        
+        // Save token to user (valid for 1 hour)
+        user.resetPasswordToken = resetToken;
+        user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+        await user.save();
+        
+        // Send email with reset link
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASSWORD
+            }
+        });
+        
+        const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+        
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: user.email,
+            subject: 'Password Reset Request',
+            html: `
+                <h1>Password Reset</h1>
+                <p>You requested a password reset. Click the link below:</p>
+                <a href="${resetUrl}">${resetUrl}</a>
+                <p>This link expires in 1 hour.</p>
+                <p>If you didn't request this, ignore this email.</p>
+            `
+        };
+        
+        await transporter.sendMail(mailOptions);
+        
+        res.status(200).json({ message: "Reset email sent successfully" });
+    } catch (error) {
+        console.error("Forgot password error:", error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// Reset Password
+const resetPassword = async (req, res) => {
+    try {
+        const { token, newPassword } = req.body;
+        
+        // Find user by reset token and check if token is still valid
+        const user = await UserModel.findOne({
+            resetPasswordToken: token,
+            resetPasswordExpires: { $gt: Date.now() } // Token not expired
+        });
+        
+        if (!user) {
+            return res.status(400).json({ message: "Invalid or expired token" });
+        }
+        
+        // Hash new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedPassword;
+        
+        // Clear reset token fields
+        user.resetPasswordToken = null;
+        user.resetPasswordExpires = null;
+        
+        await user.save();
+        
+        res.status(200).json({ message: "Password reset successful" });
+    } catch (error) {
+        console.error("Reset password error:", error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+module.exports = { registerUser, loginUser, getUserProfile, getUsers, updateProfile, forgotPassword, resetPassword };
